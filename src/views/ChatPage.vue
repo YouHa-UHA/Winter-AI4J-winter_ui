@@ -1,5 +1,5 @@
 <template>
-    <el-container class="chat-page">
+    <el-container class="container">
         <!-- 顶部标题和菜单 -->
         <el-header class="header">
             <div class="header-title">
@@ -20,11 +20,17 @@
         </el-main>
 
         <!-- 底部输入框 -->
-        <el-footer style="margin-left: auto; margin-right: auto;">
+        <el-footer style="margin-left: auto; margin-right: auto; height: 15vh;">
             <el-card class="input-card">
                 <div class="footer">
-                    <el-input v-model="inputMessage" placeholder="发送消息" class="chat-input"></el-input>
-                    <el-button type="primary" @click="sendMessage">发送</el-button>
+                    <el-input 
+                    v-model="inputMessage" 
+                    placeholder="请输入内容" 
+                    class="chat-input"
+                    :rows="2"
+                    type="textarea"                
+                    @keyup.enter="sendMessage" />
+                    <el-button type="primary" @click="sendMessage" class="send-button">发送</el-button>
                 </div>
             </el-card>
         </el-footer>
@@ -45,9 +51,6 @@ const sendMessage = () => {
 </script>
 
 <style scoped>
-.chat-page {
-    height: 100vh;
-}
 
 .header {
     display: flex;
@@ -93,5 +96,17 @@ const sendMessage = () => {
 .input-card {
     border-radius: 20px;
     width: 60vw;
+}
+.container{
+    display: flex;
+    height: 100vh;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+    background-color: #f1f6ff;
+}
+:deep(.el-textarea__inner) {
+    box-shadow: none;
+    resize: none;
 }
 </style>

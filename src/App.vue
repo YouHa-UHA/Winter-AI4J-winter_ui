@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import ChatHome from './views/ChatHome.vue';
+import { RouterView } from 'vue-router'
 </script>
 
 <template>
-  <ChatHome />
+  <RouterView />
 </template>
 <style scoped></style>
