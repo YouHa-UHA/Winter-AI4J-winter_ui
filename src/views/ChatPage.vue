@@ -5,7 +5,7 @@
             <div class="header-title">
                 <el-menu mode="horizontal" :ellipsis="false">
                     <el-sub-menu index="1">
-                        <template #title>对话名称</template>
+                        <template #title>{{ title }}</template>
                         <el-menu-item index="1-1">修改名称</el-menu-item>
                         <el-menu-item index="1-2">分享对话</el-menu-item>
                         <el-menu-item index="1-3">删除对话</el-menu-item>
@@ -23,13 +23,8 @@
         <el-footer style="margin-left: auto; margin-right: auto; height: 15vh;">
             <el-card class="input-card">
                 <div class="footer">
-                    <el-input 
-                    v-model="inputMessage" 
-                    placeholder="请输入内容" 
-                    class="chat-input"
-                    :rows="2"
-                    type="textarea"                
-                    @keyup.enter="sendMessage" />
+                    <el-input v-model="inputMessage" placeholder="请输入内容" class="chat-input" :rows="2" type="textarea"
+                        @keyup.enter="sendMessage" />
                     <el-button type="primary" @click="sendMessage" class="send-button">发送</el-button>
                 </div>
             </el-card>
@@ -38,8 +33,11 @@
 </template>
 
 <script setup lang="ts" name="ChatPage">
-import { ref } from "vue";
+import { ref, onMounted } from "vue";
+import { useRoute } from "vue-router";
 
+const router = useRoute()
+const title = ref('对话名称')
 const inputMessage = ref("");
 
 const sendMessage = () => {
@@ -47,11 +45,14 @@ const sendMessage = () => {
     // 这里可以加入消息发送的逻辑
     inputMessage.value = ""; // 清空输入框
 };
+onMounted(() => {
+    title.value = router.query.chatTitle as string
+    console.log(title.value)
+})
 // background-color: #f5f5f5;
 </script>
 
 <style scoped>
-
 .header {
     display: flex;
     justify-content: space-between;
@@ -97,7 +98,8 @@ const sendMessage = () => {
     border-radius: 20px;
     width: 60vw;
 }
-.container{
+
+.container {
     display: flex;
     height: 100vh;
     width: 100%;
@@ -105,6 +107,7 @@ const sendMessage = () => {
     padding: 0;
     background-color: #f1f6ff;
 }
+
 :deep(.el-textarea__inner) {
     box-shadow: none;
     resize: none;

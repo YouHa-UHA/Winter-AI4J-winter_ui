@@ -24,20 +24,20 @@ import { useRouter } from 'vue-router'
 import { useUserStore } from '@/stores/user'
 import * as ChatApi from '@/api/chatApi'
 
-const router = useRouter()
 const useUser = useUserStore()
 const inputMessage = ref("");
 const titleContent = ref("欢迎使用WinterAI！今天从哪里开始呢？")
+const router = useRouter()
 
 const sendMessage = async () => {
-    inputMessage.value = ""; // 清空输入框
     //获取对话信息，存储到pinia
     const res = await ChatApi.getChatId({
         userID: "111111"
     })
     const { data } = res.data
     useUser.chatId = data
-    router.push({ path: '/chat' })
+    router.push({ path: '/chat', query: { chatTitle: inputMessage.value.substring(0, 5) } })
+    inputMessage.value = ""; // 清空输入框
 };
 const messages = ref('');
 const typingSpeed = 100;
