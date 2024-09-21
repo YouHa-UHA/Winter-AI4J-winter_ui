@@ -3,14 +3,21 @@
         <!-- 顶部标题和菜单 -->
         <el-header class="header">
             <div class="header-title">
-                <el-menu mode="horizontal" :ellipsis="false">
-                    <el-sub-menu index="1">
-                        <template #title>{{ title }}</template>
-                        <el-menu-item index="1-1">修改名称</el-menu-item>
-                        <el-menu-item index="1-2">分享对话</el-menu-item>
-                        <el-menu-item index="1-3">删除对话</el-menu-item>
-                    </el-sub-menu>
-                </el-menu>
+                <el-dropdown>
+                    <span class="el-dropdown-link">
+                        {{ title }}
+                        <el-icon class="el-icon--right">
+                            <arrow-down />
+                        </el-icon>
+                    </span>
+                    <template #dropdown>
+                        <el-dropdown-menu>
+                            <el-dropdown-item>修改名称</el-dropdown-item>
+                            <el-dropdown-item>分享对话</el-dropdown-item>
+                            <el-dropdown-item>删除对话</el-dropdown-item>
+                        </el-dropdown-menu>
+                    </template>
+                </el-dropdown>
             </div>
         </el-header>
 
@@ -35,6 +42,7 @@
 <script setup lang="ts" name="ChatPage">
 import { ref, onMounted } from "vue";
 import { useRoute } from "vue-router";
+import { ArrowDown } from '@element-plus/icons-vue'
 
 const router = useRoute()
 const title = ref('对话名称')
