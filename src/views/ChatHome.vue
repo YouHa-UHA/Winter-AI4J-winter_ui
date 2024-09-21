@@ -30,6 +30,7 @@ const titleContent = ref("欢迎使用WinterAI！今天从哪里开始呢？")
 const router = useRouter()
 
 const sendMessage = async () => {
+    //检测是否登录
     //获取对话信息，存储到pinia
     const res = await ChatApi.getChatId({
         userID: "111111"
@@ -38,6 +39,7 @@ const sendMessage = async () => {
     useUser.chatId = data
     router.push({ path: '/chat', query: { chatTitle: inputMessage.value.substring(0, 5) } })
     inputMessage.value = ""; // 清空输入框
+    console.log(data)
 };
 const messages = ref('');
 const typingSpeed = 100;
@@ -77,7 +79,6 @@ onMounted(() => {
     color: black;
     font-size: 30px;
     text-align: center;
-    bold: bold;
     margin: auto;
     order: 2;
 }
@@ -91,12 +92,5 @@ onMounted(() => {
 .input-card {
     border-radius: 20px;
     width: 60vw;
-}
-
-.container {
-    display: flex;
-    height: 100vh;
-    width: 100%;
-    background-color: #f1f6ff;
 }
 </style>

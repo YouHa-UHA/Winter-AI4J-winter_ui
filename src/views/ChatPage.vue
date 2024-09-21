@@ -107,15 +107,6 @@ onMounted(() => {
     width: 60vw;
 }
 
-.container {
-    display: flex;
-    height: 100vh;
-    width: 100%;
-    margin: 0;
-    padding: 0;
-    background-color: #f1f6ff;
-}
-
 :deep(.el-textarea__inner) {
     box-shadow: none;
     resize: none;
