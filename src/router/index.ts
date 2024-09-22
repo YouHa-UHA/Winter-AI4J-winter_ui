@@ -1,4 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router'
+import ChatPage from '../views/ChatPage.vue';
 import ChatHome from '../views/ChatHome.vue';
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
