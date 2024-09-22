@@ -27,8 +27,8 @@ const getChatMsgStream = async (url: string, param: any, dealMsg: (chunk: string
                 throw new Error('No stream found');
             }
             const reader = stream.getReader();
-            const transformer = new TransformStream();
-            const writer = transformer.writable.getWriter();
+            // const transformer = new TransformStream();
+            // const writer = transformer.writable.getWriter();
 
             function readChunk() {
                 reader.read().then(({ value, done }) => {
@@ -38,12 +38,13 @@ const getChatMsgStream = async (url: string, param: any, dealMsg: (chunk: string
                         return;
                     }
                     // 将 Uint8Array 转换为字符串
-                    const text = new TextDecoder().decode(value);
+                    const text = new TextDecoder().decode(value).replace(/^data:/, '').trim();
                     console.log('Received chunk:', text);
                     if (text.trim() != "") {
                         const ans = JSON.parse(text).answer
                         if (ans != null || ans != "") {
-                            dealMsg(text);
+                            console.log('每个answer', ans)
+                            dealMsg(ans);
                         }
                     }
                     // writer.write(text); // 写入转换后的数据

@@ -9,14 +9,12 @@
         <el-main class="chat-container">
             <div class="message-container">
                 <div v-for="(message, index) in displayMessages" :key="index" class="message-wrapper">
-                    <!-- 用户消息头像（在左边） -->
                     <el-icon v-if="message.from === 'user'" class="avatar user-avatar">
                         <User />
                     </el-icon>
                     <div :class="getMessageClass(message)">
                         <p>{{ message.text }}</p>
                     </div>
-                    <!-- 服务器消息头像（在右边） -->
                     <el-icon v-if="message.from === 'server'" class="avatar server-avatar">
                         <ChatDotRound />
                     </el-icon>
@@ -44,43 +42,55 @@ import * as ChatApi from '@/api/chatApi'
 import { ElMessage } from 'element-plus';
 import { User, ChatDotRound } from '@element-plus/icons-vue';  // 引入图标
 
-const typingSpeed = 50
+const typingSpeed = 20
 const inputMessage = ref("");
 const useUser = useUserStore()
 interface MessageForm { text: string, from: 'user' | 'server' }
 const displayMessages = ref<MessageForm[]>([])
 
 const sendMessage = async () => {
-    if (inputMessage.value.trim() === '') {
+    // 检查输入是否为空
+    const message = inputMessage.value.trim();
+    if (message === '') {
         return;
     }
-    //获取chatId
-    if (useUser.chatId === "" || useUser.chatId === undefined || useUser.chatId === null) {
-        //todo 如果没有就先检测登录
-        //创建chatId
-        const id = await createChatId()
-        // displayMessages.value.push({ text: '获取chatId:' + id, from: 'server' })
-        //await typeMessage('获取chatId:' + id, 'server');
-        if (id == 'null') {
-            ElMessage.error('无法获取chatId，请稍后重试！')
+
+    // 发送用户消息
+    displayMessages.value.push({ text: message, from: 'user' });
+    inputMessage.value = ''; // 清空输入框
+
+    // 检查并获取 chatId
+    if (!useUser.chatId) {
+        try {
+            const id = await createChatId();
+            if (!id || id === 'null') {
+                ElMessage.error('无法获取chatId，请稍后重试！');
+                return;
+            }
+            useUser.chatId = id; // 保存获取到的 chatId
+        } catch (error) {
+            ElMessage.error('获取chatId失败，请稍后重试！');
+            console.error('获取 chatId 错误:', error);
+            return;
         }
-        displayMessages.value.push({ text: inputMessage.value, from: 'user' });
-    } else {
-        // await typeMessage('已有chatId:' + useUser.chatId, 'server')
-        console.log('已有chatId:' + useUser.chatId, 'server')
-        displayMessages.value.push({ text: inputMessage.value, from: 'user' });
-        //根据已有的chatId获取对话结果
-        displayMessages.value.push({ text: '', from: 'server' });
-        await ChatApi.getChatMsg({
-            chatId: useUser.chatId,
-            appIndex: "ai_coze",
-            question: inputMessage.value
-        }, typeWriterEffect)
     }
-    // 这里可以加入消息发送的逻辑
-    // typeMessage(inputMessage.value, 'user');
-    inputMessage.value = ""; // 清空输入框
+
+    // 发送空白的 server 消息占位符
+    displayMessages.value.push({ text: '', from: 'server' });
+
+    // 根据已有 chatId 获取对话结果
+    try {
+        await ChatApi.getChatMsg(
+            { chatId: useUser.chatId, appIndex: "ai_coze", question: message },
+            typeWriterEffect
+        );
+    } catch (error) {
+        ElMessage.error('发送消息失败，请稍后重试！');
+        console.error('发送消息错误:', error);
+    }
 };
+
+
 const createChatId = async () => {
     const res = await ChatApi.getChatId({
         userID: "111111"
@@ -128,7 +138,7 @@ function typeWriterEffect(text: string) {
         if (index < text.length) {
             displayedMessage += text.charAt(index); // 逐字显示
             // 在每次拼接时，修改数组中最后一条消息的 text 字段，不会覆盖整个数组
-            displayMessages.value[displayMessages.value.length - 1].text = displayedMessage;
+            displayMessages.value[displayMessages.value.length - 1].text += displayedMessage;
             index++;
             setTimeout(typeNextChar, 100); // 100 毫秒间隔显示下一个字符
         }
@@ -224,14 +234,19 @@ onMounted(() => {
     flex-direction: column;
     height: 100%;
     max-height: 100vh;
-    padding: 20px;
+    padding: 0px;
+    margin: 0px;
 }
 
 .message-container {
     flex-grow: 1;
     overflow-y: auto;
-    margin-bottom: 10px;
-    padding-right: 10px;
+    margin-bottom: 0px;
+    margin-top: 0px;
+    padding-top: 0px;
+    padding-bottom: 0px;
+    padding-right: 20vw;
+    padding-left: 20vw;
 }
 
 p {
