@@ -60,13 +60,22 @@ const sendMessage = async () => {
         //创建chatId
         const id = await createChatId()
         // displayMessages.value.push({ text: '获取chatId:' + id, from: 'server' })
-        await typeMessage('获取chatId:' + id, 'server');
+        //await typeMessage('获取chatId:' + id, 'server');
+        if (id == 'null') {
+            ElMessage.error('无法获取chatId，请稍后重试！')
+        }
         displayMessages.value.push({ text: inputMessage.value, from: 'user' });
     } else {
         // await typeMessage('已有chatId:' + useUser.chatId, 'server')
         console.log('已有chatId:' + useUser.chatId, 'server')
         displayMessages.value.push({ text: inputMessage.value, from: 'user' });
         //根据已有的chatId获取对话结果
+        displayMessages.value.push({ text: '', from: 'server' });
+        await ChatApi.getChatMsg({
+            chatId: useUser.chatId,
+            appIndex: "ai_coze",
+            question: inputMessage.value
+        }, typeWriterEffect)
     }
     // 这里可以加入消息发送的逻辑
     // typeMessage(inputMessage.value, 'user');
@@ -107,7 +116,26 @@ const typeMessage = (message: string, from: 'user' | 'server') => {
         }, typingSpeed);
     });
 };
+// 打字机效果函数
+function typeWriterEffect(text: string) {
+    let displayedMessage = '';  // 用来拼接显示的局部变量
+    let index = 0;
 
+    // 在显示逐字消息前，先将一条空消息插入数组
+    // displayMessages.value.push({ text: '', from: 'server' });
+
+    function typeNextChar() {
+        if (index < text.length) {
+            displayedMessage += text.charAt(index); // 逐字显示
+            // 在每次拼接时，修改数组中最后一条消息的 text 字段，不会覆盖整个数组
+            displayMessages.value[displayMessages.value.length - 1].text = displayedMessage;
+            index++;
+            setTimeout(typeNextChar, 100); // 100 毫秒间隔显示下一个字符
+        }
+    }
+
+    typeNextChar(); // 启动打字机效果
+}
 onMounted(() => {
     //获取问候语，并打印
     const firstChatText = "你好，欢迎来到WinterAI \uD83C\uDF89\n" +
