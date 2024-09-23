@@ -8,7 +8,7 @@
 
         <!-- 中间聊天内容 -->
         <el-main class="chat-container">
-            <div class="message-container">
+            <div class="message-container" ref="scrollFromRef">
                 <div v-for="(message, index) in displayMessages" :key="index" class="message-wrapper">
                     <el-icon v-if="message.from === 'user'" class="avatar user-avatar">
                         <User />
@@ -49,6 +49,7 @@ const inputMessage = ref("");
 const useUser = useUserStore()
 interface MessageForm { text: string, from: 'user' | 'server' }
 const displayMessages = ref<MessageForm[]>([])
+const scrollFromRef = ref()
 
 const sendMessage = async () => {
     // 检查输入是否为空
@@ -59,6 +60,7 @@ const sendMessage = async () => {
 
     // 发送用户消息
     displayMessages.value.push({ text: message, from: 'user' });
+    onSubmit()
     inputMessage.value = ''; // 清空输入框
 
     // 检查并获取 chatId
@@ -120,6 +122,7 @@ const typeMessage = (message: string, from: 'user' | 'server') => {
 
                 // 在每次拼接时，修改数组中最后一条消息的 text 字段，不会覆盖整个数组
                 displayMessages.value[displayMessages.value.length - 1].text = displayedMessage;
+                onSubmit()
                 index++;
             } else {
                 clearInterval(interval);  // 消息显示完毕时清除定时器
@@ -130,6 +133,7 @@ const typeMessage = (message: string, from: 'user' | 'server') => {
 };
 const typeUserMessage = (message: string) => {
     displayMessages.value[displayMessages.value.length - 1].text += message;
+    onSubmit()
 };
 
 onMounted(() => {
@@ -139,7 +143,13 @@ onMounted(() => {
     // displayMessages.value.push({ text: firstChatText, from: 'server' })
     typeMessage(firstChatText, 'server')
 });
-
+const onSubmit = () => {
+    // await nextTick();
+    setTimeout(() => {
+        console.log('内容增加时', scrollFromRef.value.scrollHeight);
+        scrollFromRef.value.scrollTop = scrollFromRef.value.scrollHeight;
+    }, 20); // 注意这里需要延迟20ms正好可以获取到更新后的dom节点
+};
 // 监听 `isDarkMode` 变量的变化，动态修改 <html> 标签的 class
 watchEffect(() => {
     if (ifDark.value) {

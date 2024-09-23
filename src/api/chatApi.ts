@@ -1,7 +1,7 @@
 import request from '@/utils/request';
 export const getChatId = async (params: any) => {
     return await request({
-        url: '/system/chat/create',
+        url: '/chat/create',
         method: 'post',
         data: params
     })
@@ -40,7 +40,7 @@ const getChatMsgStream = async (url: string, param: any, dealMsg: (chunk: string
 
                     // 将 Uint8Array 转换为字符串并分割成多个片段
                     const textList = new TextDecoder().decode(value).split('data:').filter(chunk => chunk.trim() !== "");
-                    console.log('Received chunk:', textList);
+                    // console.log('Received chunk:', textList);
 
                     // 处理每个分片
                     textList.forEach(text => {
@@ -54,7 +54,7 @@ const getChatMsgStream = async (url: string, param: any, dealMsg: (chunk: string
 
                                 // 验证是否包含 answer 字段
                                 if (parsed && parsed.answer != null && parsed.answer !== "") {
-                                    console.log('每个 answer:', parsed.answer);
+                                    // console.log('每个 answer:', parsed.answer);
                                     dealMsg(parsed.answer);  // 处理答案
                                 }
                             } catch (error) {
