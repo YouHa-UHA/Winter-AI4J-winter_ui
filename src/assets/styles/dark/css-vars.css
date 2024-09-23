@@ -1,0 +1,20 @@
+html.dark {
+    /* 自定义深色背景颜色 */
+    --bg-color: #040d21;
+    --server-bg-color: #4d27a5;
+}
+
+:root {
+    --bg-color: #fdf9dd;
+    --server-bg-color: #edd0c5;
+}
+
+.container {
+    display: flex;
+    height: 100vh;
+    width: 100%;
+    margin: 0px;
+    padding: 0px;
+    background-color: var(--bg-color);
+    /* 使用 CSS 变量设置背景色 */
+}

@@ -2,7 +2,8 @@
     <el-container class="container">
         <!-- 顶部标题和菜单 -->
         <el-header class="header">
-
+            <el-switch v-model="ifDark" :active-action-icon="Moon" :inactive-action-icon="Sunny" />
+            <div class="blulr-border"></div>
         </el-header>
 
         <!-- 中间聊天内容 -->
@@ -36,12 +37,13 @@
 </template>
 
 <script setup lang="ts" name="ChatPage">
-import { ref, onMounted } from "vue";
+import { ref, onMounted, watchEffect } from "vue";
 import { useUserStore } from '@/stores/user'
 import * as ChatApi from '@/api/chatApi'
 import { ElMessage } from 'element-plus';
-import { User, ChatDotRound } from '@element-plus/icons-vue';  // 引入图标
+import { User, ChatDotRound, Sunny, Moon } from '@element-plus/icons-vue';  // 引入图标
 
+const ifDark = ref(false)
 const typingSpeed = 20
 const inputMessage = ref("");
 const useUser = useUserStore()
@@ -153,10 +155,27 @@ onMounted(() => {
     // displayMessages.value.push({ text: firstChatText, from: 'server' })
     typeMessage(firstChatText, 'server')
 });
+
+// 监听 `isDarkMode` 变量的变化，动态修改 <html> 标签的 class
+watchEffect(() => {
+    if (ifDark.value) {
+        document.documentElement.classList.add('dark');
+    } else {
+        document.documentElement.classList.remove('dark');
+    }
+});
 // background-color: #f5f5f5;
 </script>
 
 <style scoped>
+.blulr-border {
+    width: 100%;
+    filter: blur(5px);
+
+    box-shadow: -15px -15px 46px #fff,
+        15px 15px 46px #fff;
+}
+
 /* 头像样式 */
 .avatar {
     width: 40px;
@@ -196,7 +215,7 @@ onMounted(() => {
 
 /* 服务器消息，靠左对齐 */
 .server-message {
-    background-color: #f0f0f0;
+    background-color: var(--server-bg-color);
     align-self: flex-start;
     order: 2;
 }
