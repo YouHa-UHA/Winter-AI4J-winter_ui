@@ -84,7 +84,7 @@ const sendMessage = async () => {
     try {
         await ChatApi.getChatMsg(
             { chatId: useUser.chatId, appIndex: "ai_coze", question: message },
-            typeWriterEffect
+            typeUserMessage
         );
     } catch (error) {
         ElMessage.error('发送消息失败，请稍后重试！');
@@ -128,26 +128,10 @@ const typeMessage = (message: string, from: 'user' | 'server') => {
         }, typingSpeed);
     });
 };
-// 打字机效果函数
-function typeWriterEffect(text: string) {
-    let displayedMessage = '';  // 用来拼接显示的局部变量
-    let index = 0;
+const typeUserMessage = (message: string) => {
+    displayMessages.value[displayMessages.value.length - 1].text += message;
+};
 
-    // 在显示逐字消息前，先将一条空消息插入数组
-    // displayMessages.value.push({ text: '', from: 'server' });
-
-    function typeNextChar() {
-        if (index < text.length) {
-            displayedMessage += text.charAt(index); // 逐字显示
-            // 在每次拼接时，修改数组中最后一条消息的 text 字段，不会覆盖整个数组
-            displayMessages.value[displayMessages.value.length - 1].text += displayedMessage;
-            index++;
-            setTimeout(typeNextChar, 100); // 100 毫秒间隔显示下一个字符
-        }
-    }
-
-    typeNextChar(); // 启动打字机效果
-}
 onMounted(() => {
     //获取问候语，并打印
     const firstChatText = "你好，欢迎来到WinterAI \uD83C\uDF89\n" +

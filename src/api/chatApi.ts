@@ -22,7 +22,7 @@ const getChatMsgStream = async (url: string, param: any, dealMsg: (chunk: string
         }
         return response.body;
     })
-        .then(stream => {
+        .then(async stream => {
             if (!stream) {
                 throw new Error('No stream found');
             }
@@ -30,27 +30,48 @@ const getChatMsgStream = async (url: string, param: any, dealMsg: (chunk: string
             // const transformer = new TransformStream();
             // const writer = transformer.writable.getWriter();
 
-            function readChunk() {
+            const readChunk = () => {
                 reader.read().then(({ value, done }) => {
                     if (done) {
                         // 数据流结束
                         console.log('Done reading the stream');
                         return;
                     }
-                    // 将 Uint8Array 转换为字符串
-                    const text = new TextDecoder().decode(value).replace(/^data:/, '').trim();
-                    console.log('Received chunk:', text);
-                    if (text.trim() != "") {
-                        const ans = JSON.parse(text).answer
-                        if (ans != null || ans != "") {
-                            console.log('每个answer', ans)
-                            dealMsg(ans);
+
+                    // 将 Uint8Array 转换为字符串并分割成多个片段
+                    const textList = new TextDecoder().decode(value).split('data:').filter(chunk => chunk.trim() !== "");
+                    console.log('Received chunk:', textList);
+
+                    // 处理每个分片
+                    textList.forEach(text => {
+                        const cleanedText = text.trim(); // 预先去除空白字符
+
+                        // 检查清理后的字符串是否非空
+                        if (cleanedText) {
+                            try {
+                                // 尝试解析 JSON
+                                const parsed = JSON.parse(cleanedText);
+
+                                // 验证是否包含 answer 字段
+                                if (parsed && parsed.answer != null && parsed.answer !== "") {
+                                    console.log('每个 answer:', parsed.answer);
+                                    dealMsg(parsed.answer);  // 处理答案
+                                }
+                            } catch (error) {
+                                console.error('JSON解析失败:', cleanedText, error); // 打印错误信息
+                                // 捕获 JSON 解析错误，继续读取
+                            }
+                        } else {
+                            console.log('Received empty or invalid chunk');
                         }
-                    }
-                    // writer.write(text); // 写入转换后的数据
-                    setTimeout(readChunk, 1000); // 延时1秒后继续读取下一个数据块
+                    });
+
+                    // 延时后继续读取下一个数据块
+                    setTimeout(readChunk, 30);
                 });
             }
+
+
 
             readChunk(); // 启动读取流程
         })
