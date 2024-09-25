@@ -1,12 +1,12 @@
 <template>
     <div class="custom-center">
         <div>
-            <el-tooltip content="开启新会话" placement="right">
+            <el-tooltip effect="customized" content="开启新会话" placement="right">
                 <el-button :icon="ChatDotRound" @click="openChatHistory" circle class="center-btn"></el-button>
             </el-tooltip>
         </div>
         <div>
-            <el-tooltip content="历史会话" placement="right">
+            <el-tooltip effect="customized" content="历史会话" placement="right">
                 <el-button :icon="Tickets" @click="openChatHistory" circle class="center-btn"></el-button>
             </el-tooltip>
         </div>
@@ -30,6 +30,19 @@ watchEffect(() => {
     }
 });
 </script>
+<style>
+.el-popper.is-customized {
+    /* Set padding to ensure the height is 32px */
+    padding: 6px 12px;
+    background: black;
+    color: white;
+}
+
+.el-popper.is-customized .el-popper__arrow::before {
+    background: black;
+    right: 0;
+}
+</style>
 <style scoped>
 .custom-center {
     width: 60px;
