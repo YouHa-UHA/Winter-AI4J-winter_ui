@@ -45,8 +45,9 @@ watchEffect(() => {
 </style>
 <style scoped>
 .custom-center {
-    width: 60px;
+    width: 55px;
     height: 50vh;
+    margin-left: 5px;
     background-color: var(--center-bg-color);
     border-radius: 12px;
     box-shadow: rgba(146, 159, 202, 0.19) 2px 2px 7.7px 0px, rgba(255, 255, 255, 0.45) 0px 0px 1px 1px inset;

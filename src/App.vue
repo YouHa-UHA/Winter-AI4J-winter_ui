@@ -12,7 +12,7 @@ const expandControl = () => {
 
 <template>
   <el-row class="container">
-    <el-col :span="ifShowControl ? 2 : 0" class="aside">
+    <el-col :span="ifShowControl ? 1 : 0" class="aside">
       <ControlCenter v-show="ifShowControl" />
     </el-col>
     <el-col :span="1" class="aside">
@@ -26,7 +26,7 @@ const expandControl = () => {
 
     </el-col>
 
-    <el-col :span="ifShowControl ? 21 : 23">
+    <el-col :span="ifShowControl ? 22 : 23">
       <router-view v-slot="{ Component }">
         <transition name="slide">
           <component :is="Component" />
