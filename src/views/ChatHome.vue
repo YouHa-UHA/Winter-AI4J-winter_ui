@@ -2,8 +2,10 @@
     <div class="container">
         <div style="margin: 30vh auto;">
             <div class="message title-message">
-                <p>{{ messages }}</p>
+                <!-- <p>{{ messages }}</p> -->
+                <Faulttext :content="titleContent" />
             </div>
+
             <el-card class="input-card">
                 <div class="footer">
                     <el-input v-model="inputMessage" placeholder="请输入内容" class="chat-input" :rows="2" type="textarea"
@@ -23,6 +25,8 @@ import { ref, onMounted } from "vue";
 import { useRouter } from 'vue-router'
 import { useUserStore } from '@/stores/user'
 import * as ChatApi from '@/api/chatApi'
+import Faulttext from '../components/Faulttext.vue';
+
 
 const useUser = useUserStore()
 const inputMessage = ref("");
@@ -32,8 +36,8 @@ const router = useRouter()
 
 const sendMessage = async () => {
     //检测是否登录
-    router.push('/')
-    return
+    // router.push('/')
+    // return
     //获取对话信息，存储到pinia
     const res = await ChatApi.getChatId({
         userID: "111111"
@@ -79,12 +83,11 @@ onMounted(() => {
 
 /* 用户消息，靠右对齐 */
 .title-message {
-    color: black;
-    font-size: 30px;
-    text-align: center;
-    margin: auto;
-    order: 2;
+    display: flex;
+    justify-content: center;
+    height: 50px;
 }
+
 
 .footer {
     display: flex;

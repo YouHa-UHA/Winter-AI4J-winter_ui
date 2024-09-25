@@ -82,14 +82,13 @@ const sendMessage = async () => {
         return;
     }
 
+    // 登录
+    router.push({ path: '/login' })
+    return
     // 发送用户消息
     displayMessages.value.push({ text: message, from: 'user' });
     onSubmit()
     inputMessage.value = ''; // 清空输入框
-
-    // 登录
-    router.push({ path: '/login' })
-    return
     // 检查并获取 chatId
     if (!useUser.chatId) {
         try {

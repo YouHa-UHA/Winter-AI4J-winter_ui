@@ -27,8 +27,8 @@ const expandControl = () => {
     </el-col>
 
     <el-col :span="ifShowControl ? 22 : 23">
-      <router-view v-slot="{ Component }">
-        <transition name="slide">
+      <router-view v-slot="{ Component, route }">
+        <transition :name="route.meta.transition ? route.meta.transition as string : ''">
           <component :is="Component" />
         </transition>
       </router-view>
