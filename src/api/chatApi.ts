@@ -40,7 +40,7 @@ const getChatMsgStream = async (url: string, param: any, dealMsg: (chunk: string
 
                     // 将 Uint8Array 转换为字符串并分割成多个片段
                     const textList = new TextDecoder().decode(value).split('data:').filter(chunk => chunk.trim() !== "");
-                    // console.log('Received chunk:', textList);
+                    console.log('Received chunk:', textList);
 
                     // 处理每个分片
                     textList.forEach(text => {

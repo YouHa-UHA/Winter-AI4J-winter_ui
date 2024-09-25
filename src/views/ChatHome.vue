@@ -26,11 +26,14 @@ import * as ChatApi from '@/api/chatApi'
 
 const useUser = useUserStore()
 const inputMessage = ref("");
-const titleContent = ref("欢迎使用WinterAI！今天从哪里开始呢？")
+const titleList = ['登录超时！请重新登录', '登录失败！用户名或密码错误', '欢迎使用WinterAI！今天从哪里开始呢？']
+const titleContent = ref(titleList[0])
 const router = useRouter()
 
 const sendMessage = async () => {
     //检测是否登录
+    router.push('/')
+    return
     //获取对话信息，存储到pinia
     const res = await ChatApi.getChatId({
         userID: "111111"

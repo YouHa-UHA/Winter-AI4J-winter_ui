@@ -1,9 +1,31 @@
 <template>
     <el-container class="container">
         <!-- 顶部标题和菜单 -->
-        <el-header class="header">
-            <el-switch v-model="ifDark" :active-action-icon="Moon" :inactive-action-icon="Sunny" />
-            <div class="blulr-border"></div>
+        <el-header>
+            <div class="header">
+                <el-dropdown class="dropdown-menu">
+                    <span>
+                        {{ chatTitle }}
+                        <el-icon class="el-icon--right">
+                            <arrow-down />
+                        </el-icon>
+                    </span>
+                    <template #dropdown>
+                        <el-dropdown-menu>
+                            <el-dropdown-item><el-icon>
+                                    <Edit />
+                                </el-icon>修改名称</el-dropdown-item>
+                            <el-dropdown-item><el-icon>
+                                    <Share />
+                                </el-icon>分享对话</el-dropdown-item>
+                            <el-dropdown-item><el-icon>
+                                    <Delete />
+                                </el-icon>删除对话</el-dropdown-item>
+                        </el-dropdown-menu>
+                    </template>
+                </el-dropdown>
+            </div>
+            <!-- <div class="blulr-border"></div> -->
         </el-header>
 
         <!-- 中间聊天内容 -->
@@ -41,9 +63,11 @@ import { ref, onMounted, watchEffect } from "vue";
 import { useUserStore } from '@/stores/user'
 import * as ChatApi from '@/api/chatApi'
 import { ElMessage } from 'element-plus';
-import { User, ChatDotRound, Sunny, Moon } from '@element-plus/icons-vue';  // 引入图标
+import { User, ChatDotRound, Sunny, Moon, Edit, Share, Delete, ArrowDown } from '@element-plus/icons-vue';  // 引入图标
+import { useRouter } from "vue-router";
 
-const ifDark = ref(false)
+const chatTitle = ref('新对话')
+const router = useRouter()
 const typingSpeed = 20
 const inputMessage = ref("");
 const useUser = useUserStore()
@@ -63,6 +87,9 @@ const sendMessage = async () => {
     onSubmit()
     inputMessage.value = ''; // 清空输入框
 
+    // 登录
+    // router.push({ path: '/login' })
+    // return
     // 检查并获取 chatId
     if (!useUser.chatId) {
         try {
@@ -146,26 +173,28 @@ onMounted(() => {
 const onSubmit = () => {
     // await nextTick();
     setTimeout(() => {
-        console.log('内容增加时', scrollFromRef.value.scrollHeight);
+        // console.log('内容增加时', scrollFromRef.value.scrollHeight);
         scrollFromRef.value.scrollTop = scrollFromRef.value.scrollHeight;
     }, 20); // 注意这里需要延迟20ms正好可以获取到更新后的dom节点
 };
-// 监听 `isDarkMode` 变量的变化，动态修改 <html> 标签的 class
-watchEffect(() => {
-    if (ifDark.value) {
-        document.documentElement.classList.add('dark');
-    } else {
-        document.documentElement.classList.remove('dark');
-    }
-});
+
 // background-color: #f5f5f5;
 </script>
 
 <style scoped>
+.dropdown-menu {
+    margin: auto
+}
+
+.header {
+    display: flex;
+}
+
 .blulr-border {
     width: 100%;
+    height: 10px;
+    border-width: 4px;
     filter: blur(5px);
-
     box-shadow: -15px -15px 46px #fff,
         15px 15px 46px #fff;
 }
