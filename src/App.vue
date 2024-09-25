@@ -23,6 +23,7 @@ import ControlCenter from '@/components/ControlCenter.vue'
 .aside {
   display: flex;
   align-items: center;
+  justify-content: center;
 }
 
 .slide-enter-active,

@@ -2,11 +2,13 @@ html.dark {
     /* 自定义深色背景颜色 */
     --bg-color: #040d21;
     --server-bg-color: #4d27a5;
+    --center-bg-color: black;
 }
 
 :root {
     --bg-color: #fdf9dd;
     --server-bg-color: #edd0c5;
+    --center-bg-color: white;
 }
 
 .container {
