@@ -3,7 +3,7 @@
         <div style="margin: 30vh auto;">
             <div class="message title-message">
                 <!-- <p>{{ messages }}</p> -->
-                <Faulttext :content="titleContent" />
+                <Faulttext :content="titleContent" :ifFault="true" />
             </div>
 
             <el-card class="input-card">
@@ -36,8 +36,8 @@ const router = useRouter()
 
 const sendMessage = async () => {
     //检测是否登录
-    // router.push('/')
-    // return
+    router.push('/')
+    return
     //获取对话信息，存储到pinia
     const res = await ChatApi.getChatId({
         userID: "111111"
@@ -48,25 +48,8 @@ const sendMessage = async () => {
     inputMessage.value = ""; // 清空输入框
     console.log(data)
 };
-const messages = ref('');
-const typingSpeed = 100;
-// 逐字显示消息的函数
-const typeMessage = (message: string) => {
-    let displayedMessage = '';  // 单条消息的局部变量
-    let index = 0;
 
-    const interval = setInterval(() => {
-        if (index < message.length) {
-            displayedMessage += message[index];
-            messages.value = displayedMessage;
-            index++;
-        } else {
-            clearInterval(interval);  // 消息显示完毕时清除定时器
-        }
-    }, typingSpeed);
-};
 onMounted(() => {
-    typeMessage(titleContent.value)
 });
 </script>
 

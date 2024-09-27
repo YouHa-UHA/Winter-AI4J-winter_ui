@@ -59,11 +59,11 @@
 </template>
 
 <script setup lang="ts" name="ChatPage">
-import { ref, onMounted, watchEffect } from "vue";
+import { ref, onMounted, nextTick } from "vue";
 import { useUserStore } from '@/stores/user'
 import * as ChatApi from '@/api/chatApi'
 import { ElMessage } from 'element-plus';
-import { User, ChatDotRound, Sunny, Moon, Edit, Share, Delete, ArrowDown } from '@element-plus/icons-vue';  // 引入图标
+import { User, ChatDotRound, Edit, Share, Delete, ArrowDown } from '@element-plus/icons-vue';  // 引入图标
 import { useRouter } from "vue-router";
 
 const chatTitle = ref('新对话')
@@ -83,10 +83,14 @@ const sendMessage = async () => {
     }
 
     // 登录
-    router.push({ path: '/login' })
-    return
-    // 发送用户消息
-    displayMessages.value.push({ text: message, from: 'user' });
+    // router.push({ path: '/login' })
+    // return
+    // 批量添加消息，减少对 DOM 的频繁操作
+    displayMessages.value = [
+        ...displayMessages.value,
+        { text: message, from: 'user' },
+        { text: '', from: 'server' }  // 占位符
+    ];
     onSubmit()
     inputMessage.value = ''; // 清空输入框
     // 检查并获取 chatId
@@ -104,9 +108,6 @@ const sendMessage = async () => {
             return;
         }
     }
-
-    // 发送空白的 server 消息占位符
-    displayMessages.value.push({ text: '', from: 'server' });
 
     // 根据已有 chatId 获取对话结果
     try {
@@ -169,15 +170,11 @@ onMounted(() => {
     // displayMessages.value.push({ text: firstChatText, from: 'server' })
     typeMessage(firstChatText, 'server')
 });
-const onSubmit = () => {
-    // await nextTick();
-    setTimeout(() => {
-        // console.log('内容增加时', scrollFromRef.value.scrollHeight);
-        scrollFromRef.value.scrollTop = scrollFromRef.value.scrollHeight;
-    }, 20); // 注意这里需要延迟20ms正好可以获取到更新后的dom节点
+const onSubmit = async () => {
+    await nextTick();
+    scrollFromRef.value.scrollTop = scrollFromRef.value.scrollHeight;
 };
 
-// background-color: #f5f5f5;
 </script>
 
 <style scoped>

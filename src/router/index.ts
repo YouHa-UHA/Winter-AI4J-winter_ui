@@ -18,11 +18,6 @@ const router = createRouter({
       // which is lazy-loaded when the route is visited.
       //使用import可以路由懒加载，如果不使用，太多组件一起加载会造成白屏
       component: () => import('../views/ChatHome.vue')
-    },
-    {
-      path: '/fault',
-      name: 'fault',
-      component: () => import('../components/Faulttext.vue')
     }
   ]
 })
