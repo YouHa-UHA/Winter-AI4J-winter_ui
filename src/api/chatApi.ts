@@ -7,7 +7,7 @@ export const getChatId = async (params: any) => {
     })
 }
 export const getChatMsg = async (params: any, dealMsg: (chunk: string) => void) => {
-    return await getChatMsgStream("/system/chat/question", params, dealMsg)
+    return await getChatMsgStream("/winter/chat/question", params, dealMsg)
 }
 const getChatMsgStream = async (url: string, param: any, dealMsg: (chunk: string) => void) => {
     await fetch(url, {
@@ -35,6 +35,7 @@ const getChatMsgStream = async (url: string, param: any, dealMsg: (chunk: string
                     if (done) {
                         // 数据流结束
                         console.log('Done reading the stream');
+                        //todo 结束之后，发联想问题请求
                         return;
                     }
 

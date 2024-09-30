@@ -25,7 +25,6 @@
                     </template>
                 </el-dropdown>
             </div>
-            <!-- <div class="blulr-border"></div> -->
         </el-header>
 
         <!-- 中间聊天内容 -->
@@ -110,6 +109,7 @@ const sendMessage = async () => {
     }
 
     // 根据已有 chatId 获取对话结果
+    // todo 上个问题打印完之后才能输入下个问题
     try {
         await ChatApi.getChatMsg(
             { chatId: useUser.chatId, appIndex: "ai_coze", question: message },
