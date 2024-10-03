@@ -42,6 +42,7 @@ const typeMessage = (message: string) => {
         }
     }, typingSpeed);
 };
+defineExpose({ typeMessage });
 
 const init = () => {
     // 获取所有 faulttext 类的元素

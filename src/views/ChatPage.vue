@@ -63,10 +63,11 @@ import { useUserStore } from '@/stores/user'
 import * as ChatApi from '@/api/chatApi'
 import { ElMessage } from 'element-plus';
 import { User, ChatDotRound, Edit, Share, Delete, ArrowDown } from '@element-plus/icons-vue';  // 引入图标
-import { useRouter } from "vue-router";
+import { useRouter, useRoute } from "vue-router";
 
 const chatTitle = ref('新对话')
 const router = useRouter()
+const route = useRoute()
 const typingSpeed = 20
 const inputMessage = ref("");
 const useUser = useUserStore()
@@ -81,7 +82,7 @@ const sendMessage = async () => {
         return;
     }
 
-    // 登录
+    // 检查登录
     // router.push({ path: '/login' })
     // return
     // 批量添加消息，减少对 DOM 的频繁操作
@@ -164,11 +165,14 @@ const typeUserMessage = (message: string) => {
 };
 
 onMounted(() => {
+    chatTitle.value = route.query.chatTitle as string
     //获取问候语，并打印
     const firstChatText = "你好，欢迎来到WinterAI \uD83C\uDF89\n" +
         "很高兴与你交流任何话题，欢迎随时来找我！"
     // displayMessages.value.push({ text: firstChatText, from: 'server' })
     typeMessage(firstChatText, 'server')
+    inputMessage.value = useUser.chat1stMsg
+    sendMessage()
 });
 const onSubmit = async () => {
     await nextTick();

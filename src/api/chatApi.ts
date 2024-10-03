@@ -6,8 +6,17 @@ export const getChatId = async (params: any) => {
         data: params
     })
 }
+
 export const getChatMsg = async (params: any, dealMsg: (chunk: string) => void) => {
     return await getChatMsgStream("/winter/chat/question", params, dealMsg)
+}
+
+export const userLogin = async (params: any) => {
+    return await request({
+        url: '/user/login',
+        method: 'post',
+        data: params
+    })
 }
 const getChatMsgStream = async (url: string, param: any, dealMsg: (chunk: string) => void) => {
     await fetch(url, {
