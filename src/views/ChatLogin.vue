@@ -96,11 +96,11 @@ const createChatId = async () => {
     useUser.chatId = data
     return String(useUser.chatId)
 }
-const sendSubmit = () => {
+const sendSubmit = async () => {
     if (ifSendMsg.value) {
-        sendMessage()
+        await sendMessage()
     } else {
-        sendLogin()
+        await sendLogin()
     }
 }
 onMounted(() => {
