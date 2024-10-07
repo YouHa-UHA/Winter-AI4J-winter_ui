@@ -32,17 +32,6 @@
             <div class="message-container" ref="scrollFromRef">
                 <Msg v-for="(msg, index) in msgList" :role="msg.role" :content="msg.content" :key="index"></Msg>
                 <Msg v-if="streaming" role="server" :content="streamingText" :streaming="true"></Msg>
-                <!-- <div v-for="(message, index) in displayMessages" :key="index" class="message-wrapper">
-                    <el-icon v-if="message.from === 'user'" class="avatar user-avatar">
-                        <User />
-                    </el-icon>
-                    <div :class="getMessageClass(message)">
-                        <p>{{ message.text }}</p>
-                    </div>
-                    <el-icon v-if="message.from === 'server'" class="avatar server-avatar">
-                        <ChatDotRound />
-                    </el-icon>
-                </div> -->
             </div>
         </el-main>
 

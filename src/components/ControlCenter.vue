@@ -62,8 +62,8 @@ watchEffect(() => {
 }
 
 .center-btn {
-    width: 40px;
-    height: 40px;
+    width: 90%;
+    height: 90%;
     background-size: 100% 100%;
     cursor: pointer;
 }

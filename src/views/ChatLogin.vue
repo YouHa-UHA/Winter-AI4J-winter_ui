@@ -136,5 +136,7 @@ onMounted(() => {
 .input-card {
     border-radius: 20px;
     width: 60vw;
+    margin-left: auto;
+    margin-right: auto;
 }
 </style>
