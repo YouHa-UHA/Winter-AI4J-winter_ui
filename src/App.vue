@@ -18,7 +18,7 @@ const expandControl = () => {
     <el-col :span="1" class="aside">
       <div class="display-expand">
         <!-- <el-tooltip :content="ifShowControl ? '收起' : '展开'" placement="right"> -->
-        <el-button class="hide-button" type="text" plain :icon="ifShowControl ? ArrowLeftBold : ArrowRightBold"
+        <el-button class="hide-button" link plain :icon="ifShowControl ? ArrowLeftBold : ArrowRightBold"
           @click="expandControl">
         </el-button>
         <!-- </el-tooltip> -->

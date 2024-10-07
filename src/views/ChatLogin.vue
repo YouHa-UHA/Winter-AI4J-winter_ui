@@ -22,7 +22,7 @@
                         </template>
                     </el-input>
 
-                    <el-button type="primary" @click="sendSubmit" class="send-button">发送</el-button>
+                    <el-button type="primary" @click="sendSubmit" :icon="CircleCheck" class="send-button"></el-button>
                 </div>
                 <template #footer>
                     <el-button type="warning" plain>功能1</el-button>
@@ -38,6 +38,7 @@ import { useRouter } from 'vue-router'
 import { useUserStore } from '@/stores/user'
 import * as ChatApi from '@/api/chatApi'
 import { ElMessage } from 'element-plus';
+import { CircleCheck } from '@element-plus/icons-vue';  // 引入图标
 import Faulttext from '../components/Faulttext.vue';
 
 const ifSendMsg = ref(false)

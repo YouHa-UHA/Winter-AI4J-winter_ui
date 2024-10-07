@@ -52,7 +52,8 @@
                 <div class="footer">
                     <el-input v-model="inputMessage" placeholder="请输入内容" class="chat-input" :rows="2" type="textarea"
                         @keyup.enter="sendMessage" />
-                    <el-button type="primary" @click="sendMessage" class="send-button">发送</el-button>
+                    <el-button type="primary" :icon="streaming ? VideoPause : CircleCheck" @click="sendMessage"
+                        class="send-button"></el-button>
                 </div>
             </el-card>
         </el-footer>
@@ -60,43 +61,54 @@
 </template>
 
 <script setup lang="ts" name="ChatPage">
-import { ref, onMounted, nextTick } from "vue";
+import { ref, onMounted, nextTick, watchEffect } from "vue";
 import Msg from '../components/Msg.vue'
 import { useUserStore } from '@/stores/user'
 import * as ChatApi from '@/api/chatApi'
 import { ElMessage } from 'element-plus';
-import { User, ChatDotRound, Edit, Share, Delete, ArrowDown } from '@element-plus/icons-vue';  // 引入图标
+import { Edit, Share, Delete, ArrowDown, VideoPause, CircleCheck } from '@element-plus/icons-vue';  // 引入图标
 import { useRouter, useRoute } from "vue-router";
 import { useSendMsg } from "@/hooks/useSendMsg";
+import { useScroll } from '@vueuse/core'
 
-const { msgList, streaming, streamingText, stream } = useSendMsg()
+const { msgList, streaming, streamingText, stream, abortStream } = useSendMsg()
 const chatTitle = ref('新对话')
 const router = useRouter()
 const route = useRoute()
-const typingSpeed = 20
 const inputMessage = ref("");
 const useUser = useUserStore()
-interface MessageForm { text: string, from: 'user' | 'server' }
-const displayMessages = ref<MessageForm[]>([])
 const scrollFromRef = ref()
+const { y } = useScroll(scrollFromRef)
 
+
+const scrollToBottom = () => {
+    nextTick(() => {
+        y.value = scrollFromRef.value?.scrollHeight || 0
+    })
+}
+watchEffect(() => {
+    if (streamingText.value || msgList.value.length > 0) {
+        scrollToBottom();
+    }
+});
 const sendMessage = async () => {
+    // 判断是否正在对话
+    if (streaming.value) {
+        console.log('取消')
+        abortStream()
+        return
+    }
     // 检查输入是否为空
     const message = inputMessage.value.trim();
     if (message === '') {
         return;
     }
 
+
     // 检查登录
     // router.push({ path: '/login' })
     // return
-    // 批量添加消息，减少对 DOM 的频繁操作
-    // displayMessages.value = [
-    //     ...displayMessages.value,
-    //     { text: message, from: 'user' },
-    //     { text: '', from: 'server' }  // 占位符
-    // ];
-    // onSubmit()
+
     inputMessage.value = ''; // 清空输入框
     // 检查并获取 chatId
     if (!useUser.chatId) {
@@ -117,10 +129,6 @@ const sendMessage = async () => {
     // 根据已有 chatId 获取对话结果
     // todo 上个问题打印完之后才能输入下个问题
     try {
-        // await ChatApi.getChatMsg(
-        //     { chatId: useUser.chatId, appIndex: "ai_coze", question: message },
-        //     typeUserMessage
-        // );
         stream({ chatId: useUser.chatId, appIndex: "ai_coze", question: message })
     } catch (error) {
         ElMessage.error('发送消息失败，请稍后重试！');
@@ -137,38 +145,7 @@ const createChatId = async () => {
     useUser.chatId = data
     return String(useUser.chatId)
 }
-// 根据消息发送方返回不同的样式类
-const getMessageClass = (message: { text: string, from: 'user' | 'server' }) => {
-    return message.from === 'user' ? 'message user-message' : 'message server-message';
-};
-// 逐字显示消息的函数
-const typeMessage = (message: string, from: 'user' | 'server') => {
-    return new Promise<void>((resolve) => {
-        let displayedMessage = '';  // 用来拼接显示的局部变量
-        let index = 0;
 
-        // 在显示逐字消息前，先将一条空消息插入数组
-        displayMessages.value.push({ text: '', from });
-
-        const interval = setInterval(() => {
-            if (index < message.length) {
-                displayedMessage += message[index];
-
-                // 在每次拼接时，修改数组中最后一条消息的 text 字段，不会覆盖整个数组
-                displayMessages.value[displayMessages.value.length - 1].text = displayedMessage;
-                onSubmit()
-                index++;
-            } else {
-                clearInterval(interval);  // 消息显示完毕时清除定时器
-                resolve();  // 定时器完成后，执行 resolve，通知 Promise 完成
-            }
-        }, typingSpeed);
-    });
-};
-const typeUserMessage = (message: string) => {
-    displayMessages.value[displayMessages.value.length - 1].text += message;
-    onSubmit()
-};
 
 onMounted(() => {
     chatTitle.value = route.query.chatTitle as string
@@ -181,10 +158,7 @@ onMounted(() => {
     inputMessage.value = useUser.chat1stMsg
     sendMessage()
 });
-const onSubmit = async () => {
-    await nextTick();
-    scrollFromRef.value.scrollTop = scrollFromRef.value.scrollHeight;
-};
+
 
 </script>
 

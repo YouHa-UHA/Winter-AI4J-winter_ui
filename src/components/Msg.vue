@@ -11,8 +11,7 @@
                     <!-- 复制按钮 -->
                     <br />
                     <el-tooltip content="Copy" placement="top">
-                        <el-button class="footer-button" type="text" :icon="CopyDocument" @click="copyText"
-                            circle></el-button>
+                        <el-button class="footer-button" link :icon="CopyDocument" @click="copyText" circle></el-button>
                     </el-tooltip>
                 </div>
             </span>
@@ -147,7 +146,7 @@ const mkHtml = computed(() => {
 .msg-item-system {
     justify-content: flex-start; // 系统消息靠左
     align-self: flex-start;
-    font-family: 'Courier New', Courier, monospace;
+    white-space: pre-wrap;
 }
 
 .footer-button {
@@ -184,14 +183,15 @@ const mkHtml = computed(() => {
     position: relative;
     display: inline-flex;
     align-items: center;
-    width: 1px;
-    height: 1em;
-    background: #3b414b;
-    /* fallback for old browsers */
+    width: 1em; // 宽度改为与高度相等
+    height: 1em; // 维持高度为1em
+    background: black; // 设置光标颜色
     padding-left: 0.05em;
     top: 0.1em;
-    animation: blink 1s steps(1) infinite;
+    border-radius: 50%; // 使其为圆形
+    animation: blink 1s steps(1) infinite; // 设置闪烁动画
 }
+
 
 @keyframes blink {
     0% {

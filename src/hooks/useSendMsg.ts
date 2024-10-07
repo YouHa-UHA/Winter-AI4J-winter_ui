@@ -32,6 +32,15 @@ export const useSendMsg = () => {
     const stream = (prompt: QuestionInf) => {
         gpt.getChatMsgStream(prompt)
     }
+    const abortStream = () => {
+        streaming.value = false
+        msgList.value.push({
+            role: 'server',
+            content: streamingText.value
+        })
+        streamingText.value = ''
+        gpt.abortStream()
+    }
     // 逐字显示消息的函数
     const typeMessage = (message: string) => {
         return new Promise<void>((resolve) => {
@@ -57,6 +66,7 @@ export const useSendMsg = () => {
         streamingText,
         streaming,
         msgList,
-        stream
+        stream,
+        abortStream
     }
 }
