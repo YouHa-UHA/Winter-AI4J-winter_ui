@@ -1,4 +1,5 @@
 import request from '@/utils/request';
+
 export const getChatId = async (params: any) => {
     return await request({
         url: '/chat/create',

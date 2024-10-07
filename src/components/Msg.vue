@@ -1,0 +1,209 @@
+<template>
+    <div class="msg-item" :class="{ 'msg-item-system': role === 'server' }">
+        <div class="msg-content">
+            <el-icon v-if="role === 'server'" class="msg-server-avatar">
+                <ChatDotRound />
+            </el-icon>
+            <span class="msg-pop-container">
+                <div class="msg-pop-default" :class="{ 'msg-pop-primary': role === 'user' }">
+                    <span v-html="mkHtml" ref="popRef">
+                    </span>
+                    <!-- 复制按钮 -->
+                    <br />
+                    <el-tooltip content="Copy" placement="top">
+                        <el-button class="footer-button" type="text" :icon="CopyDocument" @click="copyText"
+                            circle></el-button>
+                    </el-tooltip>
+                </div>
+            </span>
+            <el-icon v-if="role === 'user'" class="msg-user-avatar">
+                <User />
+            </el-icon>
+        </div>
+    </div>
+</template>
+<script setup lang="ts" name="Msg">
+import MarkdownIt from 'markdown-it'
+import hljs from 'highlight.js'
+import 'highlight.js/styles/atom-one-dark-reasonable.css'
+import { computed, nextTick, ref } from 'vue'
+import { User, ChatDotRound, CopyDocument } from '@element-plus/icons-vue';  // 引入图标
+
+const copyText = () => {
+    const text = popRef.value.innerText
+    navigator.clipboard.writeText(text)
+}
+interface Props {
+    role: string
+    content: string
+    streaming?: boolean
+}
+const props = withDefaults(defineProps<Props>(), {
+    content: '',
+    streaming: false
+})
+const md: MarkdownIt = MarkdownIt({
+    highlight: function (str: string, lang: string) {
+        if (lang && hljs.getLanguage(lang)) {
+            try {
+                return `<div class="hl-code"><div class="hl-code-header"><span>${lang}</span></div><div class="hljs"><code>${hljs.highlight(str, { language: lang, ignoreIllegals: true }).value
+                    }</code></div></div>`
+            } catch (__) {
+                console.log(__, 'error')
+            }
+        }
+        return `<div class="hl-code"><div class="hl-code-header"><span>${lang}</span></div><div class="hljs"><code>${md.utils.escapeHtml(
+            str
+        )}</code></div></div>`
+    }
+})
+function findLastElement(element: HTMLElement): HTMLElement {
+    if (!element.children.length) {
+        return element
+    }
+    const lastChild = element.children[element.children.length - 1]
+    if (lastChild.nodeType === Node.ELEMENT_NODE) {
+        return findLastElement(lastChild as HTMLElement)
+    }
+    return element
+}
+const popRef = ref()
+const mkHtml = computed(() => {
+    if (props.role === 'user') {
+        return props.content
+    }
+    let html = md.render(props.content)
+    nextTick(() => {
+        if (props.streaming) {
+            const parent = popRef.value
+            if (!parent) return
+            let lastChild = parent.lastElementChild || parent
+            if (lastChild.tagName === 'PRE') {
+                lastChild = lastChild.getElementsByClassName('hljs')[0] || lastChild
+            }
+            if (lastChild.tagName === 'OL') {
+                lastChild = findLastElement(lastChild as HTMLElement)
+            }
+            lastChild?.insertAdjacentHTML('beforeend', '<span class="input-cursor"></span>')
+        }
+    })
+    return html
+})
+
+</script>
+<style lang="scss" scoped>
+.msg-item {
+    width: 100%;
+    margin-bottom: 10px;
+    display: flex;
+    justify-content: flex-end; // 用户消息靠右
+    align-items: flex-start;
+
+    .msg-user-avatar {
+        width: 40px;
+        height: 40px;
+        margin-left: 10px;
+        font-size: 40px;
+    }
+
+    .msg-server-avatar {
+        width: 40px;
+        height: 40px;
+        margin-right: 10px;
+        font-size: 40px;
+    }
+
+    .msg-content {
+        max-width: 70%;
+        display: flex;
+        align-items: flex-start;
+
+        .msg-pop-container {
+            display: inline-block;
+            max-width: 100%;
+
+            .msg-pop-default {
+                display: inline-block;
+                padding: 8px;
+                background: var(--server-bg-color);
+                border-radius: 4px;
+                color: white;
+
+                :deep(p) {
+                    margin-bottom: 0;
+                    white-space: pre-line;
+                }
+            }
+
+            .msg-pop-primary {
+                background: #409eff;
+                color: white;
+                margin-left: auto;
+            }
+        }
+    }
+}
+
+.msg-item-system {
+    justify-content: flex-start; // 系统消息靠左
+    align-self: flex-start;
+    font-family: 'Courier New', Courier, monospace;
+}
+
+.footer-button {
+    color: white;
+}
+</style>
+<style lang="scss">
+.hl-code {
+    margin-top: 1em;
+}
+
+.hl-code-header {
+    padding: 0 10px;
+    color: #abb2bf;
+    background: #1d2635;
+    border-radius: 4px 4px 0 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.hljs {
+    padding: 10px;
+    overflow-x: auto;
+    border-radius: 0 0 4px 4px;
+
+    .input-cursor {
+        background: #fff;
+        /* fallback for old browsers */
+    }
+}
+
+.input-cursor {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    width: 1px;
+    height: 1em;
+    background: #3b414b;
+    /* fallback for old browsers */
+    padding-left: 0.05em;
+    top: 0.1em;
+    animation: blink 1s steps(1) infinite;
+}
+
+@keyframes blink {
+    0% {
+        visibility: visible;
+    }
+
+    50% {
+        visibility: hidden;
+    }
+
+    100% {
+        visibility: visible;
+    }
+}
+</style>

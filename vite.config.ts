@@ -15,6 +15,7 @@ export default defineConfig({
   },
   server: {
     host: "0.0.0.0",
+    port: 5277,
     proxy: {
       '/winter': {
         target: 'http://localhost:9090',
@@ -22,6 +23,13 @@ export default defineConfig({
         changeOrigin: true,
       }
     },
+  },
+  css: {
+    preprocessorOptions: {
+      scss: {
+        api: "modern-compiler" // or 'modern'
+      }
+    }
   },
 })
 

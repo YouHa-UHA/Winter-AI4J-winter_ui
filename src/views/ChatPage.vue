@@ -30,7 +30,9 @@
         <!-- 中间聊天内容 -->
         <el-main class="chat-container">
             <div class="message-container" ref="scrollFromRef">
-                <div v-for="(message, index) in displayMessages" :key="index" class="message-wrapper">
+                <Msg v-for="(msg, index) in msgList" :role="msg.role" :content="msg.content" :key="index"></Msg>
+                <Msg v-if="streaming" role="server" :content="streamingText" :streaming="true"></Msg>
+                <!-- <div v-for="(message, index) in displayMessages" :key="index" class="message-wrapper">
                     <el-icon v-if="message.from === 'user'" class="avatar user-avatar">
                         <User />
                     </el-icon>
@@ -40,7 +42,7 @@
                     <el-icon v-if="message.from === 'server'" class="avatar server-avatar">
                         <ChatDotRound />
                     </el-icon>
-                </div>
+                </div> -->
             </div>
         </el-main>
 
@@ -59,12 +61,15 @@
 
 <script setup lang="ts" name="ChatPage">
 import { ref, onMounted, nextTick } from "vue";
+import Msg from '../components/Msg.vue'
 import { useUserStore } from '@/stores/user'
 import * as ChatApi from '@/api/chatApi'
 import { ElMessage } from 'element-plus';
 import { User, ChatDotRound, Edit, Share, Delete, ArrowDown } from '@element-plus/icons-vue';  // 引入图标
 import { useRouter, useRoute } from "vue-router";
+import { useSendMsg } from "@/hooks/useSendMsg";
 
+const { msgList, streaming, streamingText, stream } = useSendMsg()
 const chatTitle = ref('新对话')
 const router = useRouter()
 const route = useRoute()
@@ -86,12 +91,12 @@ const sendMessage = async () => {
     // router.push({ path: '/login' })
     // return
     // 批量添加消息，减少对 DOM 的频繁操作
-    displayMessages.value = [
-        ...displayMessages.value,
-        { text: message, from: 'user' },
-        { text: '', from: 'server' }  // 占位符
-    ];
-    onSubmit()
+    // displayMessages.value = [
+    //     ...displayMessages.value,
+    //     { text: message, from: 'user' },
+    //     { text: '', from: 'server' }  // 占位符
+    // ];
+    // onSubmit()
     inputMessage.value = ''; // 清空输入框
     // 检查并获取 chatId
     if (!useUser.chatId) {
@@ -112,10 +117,11 @@ const sendMessage = async () => {
     // 根据已有 chatId 获取对话结果
     // todo 上个问题打印完之后才能输入下个问题
     try {
-        await ChatApi.getChatMsg(
-            { chatId: useUser.chatId, appIndex: "ai_coze", question: message },
-            typeUserMessage
-        );
+        // await ChatApi.getChatMsg(
+        //     { chatId: useUser.chatId, appIndex: "ai_coze", question: message },
+        //     typeUserMessage
+        // );
+        stream({ chatId: useUser.chatId, appIndex: "ai_coze", question: message })
     } catch (error) {
         ElMessage.error('发送消息失败，请稍后重试！');
         console.error('发送消息错误:', error);
@@ -170,7 +176,8 @@ onMounted(() => {
     const firstChatText = "你好，欢迎来到WinterAI \uD83C\uDF89\n" +
         "很高兴与你交流任何话题，欢迎随时来找我！"
     // displayMessages.value.push({ text: firstChatText, from: 'server' })
-    typeMessage(firstChatText, 'server')
+    // typeMessage(firstChatText, 'server')
+    msgList.value.push({ role: 'server', content: firstChatText })
     inputMessage.value = useUser.chat1stMsg
     sendMessage()
 });
