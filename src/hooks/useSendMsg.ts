@@ -83,7 +83,7 @@ class StreamMsg {
                             }
                         });
 
-                        setTimeout(readChunk, 30);
+                        return readChunk();
                     }).catch(error => {
                         if (error.name === 'AbortError') {
                             // 捕获到流中止时的异常，不再继续读取

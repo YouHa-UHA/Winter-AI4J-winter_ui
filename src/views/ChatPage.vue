@@ -137,12 +137,10 @@ const createChatId = async () => {
 
 
 onMounted(() => {
-    chatTitle.value = route.query.chatTitle as string
+    chatTitle.value = route.query.chatTitle as string || '新对话'
     //获取问候语，并打印
     const firstChatText = "你好，欢迎来到WinterAI \uD83C\uDF89\n" +
         "很高兴与你交流任何话题，欢迎随时来找我！"
-    // displayMessages.value.push({ text: firstChatText, from: 'server' })
-    // typeMessage(firstChatText, 'server')
     msgList.value.push({ role: 'server', content: firstChatText })
     inputMessage.value = useUser.chat1stMsg
     sendMessage()

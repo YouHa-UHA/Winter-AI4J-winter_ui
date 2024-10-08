@@ -143,6 +143,7 @@ const mkHtml = computed(() => {
             max-width: 100%;
 
             .msg-pop-default {
+                max-width: 90%;
                 display: inline-block;
                 padding: 8px;
                 background: var(--server-bg-color);
@@ -239,6 +240,7 @@ tr:hover {
     align-items: center;
 }
 
+/*copy按钮固钉效果 */
 .sticky {
     position: -webkit-sticky;
     /* For Safari */
