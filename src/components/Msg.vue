@@ -154,6 +154,44 @@ const mkHtml = computed(() => {
 }
 </style>
 <style lang="scss">
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+    background-color: white;
+    /* 白色背景 */
+    color: black;
+    /* 黑色文字 */
+}
+
+th,
+td {
+    border: 1px solid #ddd;
+    /* 灰色边框 */
+    padding: 12px;
+    /* 内边距 */
+    text-align: left;
+    /* 左对齐 */
+}
+
+th {
+    background-color: #f6f8fa;
+    /* 表头背景颜色 */
+    font-weight: bold;
+    /* 表头加粗 */
+}
+
+tr:nth-child(even) {
+    background-color: #f6f8fa;
+    /* 偶数行背景颜色 */
+}
+
+tr:hover {
+    background-color: #f1f1f1;
+    /* 悬停时的背景颜色 */
+}
+
+
 .hl-code {
     margin-top: 1em;
 }

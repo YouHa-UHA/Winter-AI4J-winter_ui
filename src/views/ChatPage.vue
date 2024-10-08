@@ -253,12 +253,18 @@ onMounted(() => {
 .message-container {
     flex-grow: 1;
     overflow-y: auto;
-    margin-bottom: 0px;
-    margin-top: 0px;
-    padding-top: 0px;
-    padding-bottom: 0px;
-    padding-right: 20vw;
     padding-left: 20vw;
+    padding-right: 20vw;
+    box-sizing: border-box;
+    /* 确保padding包含在元素的宽度内 */
+}
+
+.message-container>* {
+    max-width: 100%;
+    /* 确保子元素不超出容器宽度 */
+    word-break: break-word;
+    white-space: pre-wrap;
+    /* 如果文字过长，强制换行 */
 }
 
 p {
