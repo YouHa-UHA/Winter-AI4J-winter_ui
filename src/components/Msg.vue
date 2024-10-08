@@ -45,7 +45,7 @@ const md: MarkdownIt = MarkdownIt({
     highlight: function (str: string, lang: string) {
         if (lang && hljs.getLanguage(lang)) {
             try {
-                return `<div class="hl-code"><div class="hl-code-header"><span>${lang}</span><button class="copy-btn" @click="copyCode">copy</button></div><div class="hljs"><code>${hljs.highlight(str, { language: lang, ignoreIllegals: true }).value
+                return `<div class="hl-code"><div class="hl-code-header sticky"><span>${lang}</span><button class="copy-btn" @click="copyCode">copy</button></div><div class="hljs"><code>${hljs.highlight(str, { language: lang, ignoreIllegals: true }).value
                     }</code></div></div>`
             } catch (__) {
                 console.log(__, 'error')
@@ -231,12 +231,25 @@ tr:hover {
 
 .hl-code-header {
     padding: 0 10px;
-    color: #abb2bf;
+    color: #ddd;
     background: #1d2635;
     border-radius: 4px 4px 0 0;
     display: flex;
     justify-content: space-between;
     align-items: center;
+}
+
+.sticky {
+    position: -webkit-sticky;
+    /* For Safari */
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    /* 确保在滚动时覆盖其他元素 */
+    color: white;
+    background: #1d2635;
+    /* 防止内容滚动时透明 */
+    border-bottom: 1px solid #1d2635;
 }
 
 .hljs {
