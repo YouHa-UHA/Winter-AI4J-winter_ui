@@ -45,17 +45,38 @@ const md: MarkdownIt = MarkdownIt({
     highlight: function (str: string, lang: string) {
         if (lang && hljs.getLanguage(lang)) {
             try {
-                return `<div class="hl-code"><div class="hl-code-header"><span>${lang}</span></div><div class="hljs"><code>${hljs.highlight(str, { language: lang, ignoreIllegals: true }).value
+                return `<div class="hl-code"><div class="hl-code-header"><span>${lang}</span><button class="copy-btn" @click="copyCode">copy</button></div><div class="hljs"><code>${hljs.highlight(str, { language: lang, ignoreIllegals: true }).value
                     }</code></div></div>`
             } catch (__) {
                 console.log(__, 'error')
             }
         }
-        return `<div class="hl-code"><div class="hl-code-header"><span>${lang}</span></div><div class="hljs"><code>${md.utils.escapeHtml(
-            str
-        )}</code></div></div>`
+        return `<div class="hl-code"><div class="hl-code-header"><span>${lang}</span><button class="copy-btn" @click="copyCode">copy</button></div><div class="hljs"><code>${md.utils.escapeHtml(str)}</code></div></div>`
     }
 })
+// 监听复制按钮点击事件
+document.addEventListener('click', function (event) {
+    const target = event.target as HTMLElement;
+    if (target.classList.contains('copy-btn')) {
+        copyCode(event);
+    }
+});
+
+function copyCode(event: Event) {
+    const button = event.target as HTMLElement
+    const codeBlock = button.closest('.hl-code')?.querySelector('code')
+    const codeText = codeBlock?.innerText
+    if (codeText) {
+        navigator.clipboard.writeText(codeText).then(() => {
+            button.innerText = 'Copied!'
+            setTimeout(() => {
+                button.innerText = 'Copy'
+            }, 2000)
+        }).catch(err => {
+            console.error('Failed to copy text: ', err)
+        })
+    }
+}
 function findLastElement(element: HTMLElement): HTMLElement {
     if (!element.children.length) {
         return element
@@ -113,7 +134,7 @@ const mkHtml = computed(() => {
     }
 
     .msg-content {
-        max-width: 70%;
+        max-width: 100%;
         display: flex;
         align-items: flex-start;
 
@@ -191,6 +212,18 @@ tr:hover {
     /* 悬停时的背景颜色 */
 }
 
+.copy-btn {
+    background-color: #1d2635;
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    cursor: pointer;
+    border-radius: 3px;
+}
+
+.copy-btn:hover {
+    background-color: #717070;
+}
 
 .hl-code {
     margin-top: 1em;

@@ -169,27 +169,6 @@ onMounted(() => {
         15px 15px 46px #fff;
 }
 
-/* 头像样式 */
-.avatar {
-    width: 40px;
-    height: 40px;
-}
-
-/* 用户头像显示在左边 */
-.user-avatar {
-    order: 3;
-    margin-left: 10px;
-    font-size: 40px;
-}
-
-/* 服务器头像显示在右边 */
-.server-avatar {
-    order: 1;
-    margin-right: 10px;
-    font-size: 40px;
-
-}
-
 /* 消息内容的样式 */
 .message {
     max-width: 70%;
