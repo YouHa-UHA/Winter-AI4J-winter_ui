@@ -6,7 +6,7 @@
             </el-icon>
             <span class="msg-pop-container">
                 <div class="msg-pop-default" :class="{ 'msg-pop-primary': role === 'user' }">
-                    <span v-html="mkHtml" ref="popRef">
+                    <span v-html="renderedContent" ref="contentRef">
                     </span>
                     <!-- 复制按钮 -->
                     <br />
@@ -25,17 +25,17 @@
 import MarkdownIt from 'markdown-it'
 import hljs from 'highlight.js'
 import 'highlight.js/styles/atom-one-dark-reasonable.css'
-import { computed, nextTick, ref } from 'vue'
+import { computed, nextTick, ref, onMounted, onBeforeUnmount } from 'vue'
 import { User, ChatDotRound, CopyDocument } from '@element-plus/icons-vue';  // 引入图标
 
 const copyText = () => {
-    const text = popRef.value.innerText
+    const text = contentRef.value.innerText
     navigator.clipboard.writeText(text)
 }
 interface Props {
-    role: string
-    content: string
-    streaming?: boolean
+    role: 'user' | 'server';
+    content: string;
+    streaming?: boolean;
 }
 const props = withDefaults(defineProps<Props>(), {
     content: '',
@@ -45,38 +45,46 @@ const md: MarkdownIt = MarkdownIt({
     highlight: function (str: string, lang: string) {
         if (lang && hljs.getLanguage(lang)) {
             try {
-                return `<div class="hl-code"><div class="hl-code-header sticky"><span>${lang}</span><button class="copy-btn" @click="copyCode">copy</button></div><div class="hljs"><code>${hljs.highlight(str, { language: lang, ignoreIllegals: true }).value
+                return `<div class="hl-code"><div class="hl-code-header sticky"><span>${lang}</span><button class="copy-btn">copy</button></div><div class="hljs"><code>${hljs.highlight(str, { language: lang, ignoreIllegals: true }).value
                     }</code></div></div>`
             } catch (__) {
                 console.log(__, 'error')
             }
         }
-        return `<div class="hl-code"><div class="hl-code-header"><span>${lang}</span><button class="copy-btn" @click="copyCode">copy</button></div><div class="hljs"><code>${md.utils.escapeHtml(str)}</code></div></div>`
+        return `<div class="hl-code"><div class="hl-code-header"><span>${lang}</span><button class="copy-btn">copy</button></div><div class="hljs"><code>${md.utils.escapeHtml(str)}</code></div></div>`
     }
 })
-// 监听复制按钮点击事件
-document.addEventListener('click', function (event) {
-    const target = event.target as HTMLElement;
-    if (target.classList.contains('copy-btn')) {
-        copyCode(event);
-    }
+
+onMounted(() => {
+    document.addEventListener('click', handleCopyCode);
 });
 
-function copyCode(event: Event) {
-    const button = event.target as HTMLElement
-    const codeBlock = button.closest('.hl-code')?.querySelector('code')
-    const codeText = codeBlock?.innerText
-    if (codeText) {
-        navigator.clipboard.writeText(codeText).then(() => {
-            button.innerText = 'Copied!'
-            setTimeout(() => {
-                button.innerText = 'Copy'
-            }, 2000)
-        }).catch(err => {
-            console.error('Failed to copy text: ', err)
-        })
+onBeforeUnmount(() => {
+    document.removeEventListener('click', handleCopyCode);
+});
+// 处理代码块复制
+const handleCopyCode = (event: Event) => {
+    const target = event.target as HTMLButtonElement;
+    if (target.classList.contains('copy-btn')) {
+        const button = target;
+        const codeBlock = button.closest('.hl-code')?.querySelector('code');
+        const codeText = codeBlock?.innerText;
+
+        if (codeText) {
+            navigator.clipboard.writeText(codeText).then(() => {
+                button.textContent = 'Copied!';
+                button.disabled = true;
+                setTimeout(() => {
+                    button.textContent = 'Copy';
+                    button.disabled = false;
+                }, 2000);
+            }).catch(err => {
+                console.error('复制代码失败:', err);
+            });
+        }
     }
-}
+};
+
 function findLastElement(element: HTMLElement): HTMLElement {
     if (!element.children.length) {
         return element
@@ -87,15 +95,15 @@ function findLastElement(element: HTMLElement): HTMLElement {
     }
     return element
 }
-const popRef = ref()
-const mkHtml = computed(() => {
+const contentRef = ref()
+const renderedContent = computed(() => {
     if (props.role === 'user') {
         return props.content
     }
     let html = md.render(props.content)
     nextTick(() => {
         if (props.streaming) {
-            const parent = popRef.value;
+            const parent = contentRef.value;
             if (!parent) return;
             let lastChild = parent.lastElementChild || parent;
             if (lastChild.tagName === 'PRE') {
@@ -154,7 +162,7 @@ const mkHtml = computed(() => {
                 max-width: 100%;
                 display: inline-block;
                 padding: 8px;
-                background: var(--server-bg-color);
+                background: var(--server-bg-color, #333);
                 border-radius: 4px;
                 color: white;
 
