@@ -1,57 +1,59 @@
-import { ref } from 'vue'
+import { ref } from 'vue';
 
 interface GptMsg {
-    role: string
-    content: string
+    role: 'user' | 'server';
+    content: string;
 }
-interface QuestionInf { chatId: string, appIndex: string, question: string }
+
+interface QuestionInf {
+    chatId: string;
+    appIndex: string;
+    question: string;
+}
+
 class StreamMsg {
-    onStart: (prompt: string) => void
-    onDone: () => void
-    onPatch: (text: string) => void
-    private abortController: AbortController | null = null
+    private onStart: (prompt: string) => void;
+    private onDone: () => void;
+    private onPatch: (text: string) => void;
+    private abortController: AbortController | null = null;
 
     constructor(options: {
-        onStart: (prompt: string) => void
-        onDone: () => void
+        onStart: (prompt: string) => void,
+        onDone: () => void,
         onPatch: (text: string) => void
     }) {
-        const { onStart, onDone, onPatch } = options
-        this.onStart = onStart
-        this.onPatch = onPatch
-        this.onDone = onDone
+        this.onStart = options.onStart;
+        this.onPatch = options.onPatch;
+        this.onDone = options.onDone;
     }
 
-    // 新增的主动断开连接的方法
+    // 提供中止流的方法
     abortStream() {
         if (this.abortController) {
-            this.abortController.abort(); // 主动终止连接
-            console.log('Stream aborted by user');
+            this.abortController.abort();
+            console.log('用户已中止流');
         }
     }
 
     getChatMsgStream(param: QuestionInf, streaming = false) {
-        this.onStart(param.question)
-
-        // 创建一个新的AbortController
+        this.onStart(param.question);
         this.abortController = new AbortController();
 
         fetch('/winter/chat/question', {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
+            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(param),
-            signal: this.abortController.signal // 传递 abort 信号
-        }).then(response => {
-            if (!response.ok) {
-                throw new Error('Network response was not ok');
-            }
-            return response.body;
+            signal: this.abortController.signal
         })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('网络响应错误');
+                }
+                return response.body;
+            })
             .then(stream => {
                 if (!stream) {
-                    throw new Error('No stream found');
+                    throw new Error('未找到流');
                 }
                 const reader = stream.getReader();
 
@@ -59,7 +61,7 @@ class StreamMsg {
                     reader.read().then(({ value, done }) => {
                         if (done) {
                             this.onDone();
-                            console.log('Done reading the stream');
+                            console.log('流读取完毕');
                             return;
                         }
 
@@ -79,67 +81,69 @@ class StreamMsg {
                                     console.error('JSON解析失败:', cleanedText, error);
                                 }
                             } else {
-                                console.log('Received empty or invalid chunk');
+                                console.log('接收到空或无效数据块');
                             }
                         });
 
-                        return readChunk();
+                        setTimeout(readChunk, 30);
                     }).catch(error => {
                         if (error.name === 'AbortError') {
-                            // 捕获到流中止时的异常，不再继续读取
-                            console.log('Stream reading aborted');
+                            console.log('流读取被中止');
                         } else {
-                            console.error('Error while reading stream:', error);
+                            console.error('读取流时出错:', error);
                         }
                     });
-                }
+                };
                 readChunk();
             })
             .catch(error => {
                 if (error.name === 'AbortError') {
-                    console.log('Fetch aborted');
+                    console.log('请求被中止');
                 } else {
-                    console.error('Error:', error);
+                    console.error('错误:', error);
                 }
             });
     }
 }
+
 export const useSendMsg = () => {
-    const streamingText = ref('')
-    const streaming = ref(false)
-    const msgList = ref<GptMsg[]>([])
+    const streamingText = ref('');
+    const streaming = ref(false);
+    const msgList = ref<GptMsg[]>([]);
     const gpt = new StreamMsg({
         onStart: (prompt: string) => {
-            streaming.value = true
+            streaming.value = true;
             msgList.value.push({
                 role: 'user',
                 content: prompt
-            })
+            });
         },
         onDone: () => {
-            streaming.value = false
+            streaming.value = false;
             msgList.value.push({
                 role: 'server',
                 content: streamingText.value
-            })
-            streamingText.value = ''
+            });
+            streamingText.value = '';
         },
         onPatch: (text: string) => {
-            streamingText.value += text
+            streamingText.value += text;
         }
-    })
+    });
+
     const stream = (prompt: QuestionInf) => {
-        gpt.getChatMsgStream(prompt)
-    }
+        gpt.getChatMsgStream(prompt);
+    };
+
     const abortStream = () => {
-        streaming.value = false
+        streaming.value = false;
         msgList.value.push({
             role: 'server',
             content: streamingText.value
-        })
-        streamingText.value = ''
-        gpt.abortStream()
-    }
+        });
+        streamingText.value = '';
+        gpt.abortStream();
+    };
 
     return {
         streamingText,
@@ -147,5 +151,5 @@ export const useSendMsg = () => {
         msgList,
         stream,
         abortStream
-    }
-}
+    };
+};

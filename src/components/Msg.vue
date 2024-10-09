@@ -95,18 +95,25 @@ const mkHtml = computed(() => {
     let html = md.render(props.content)
     nextTick(() => {
         if (props.streaming) {
-            const parent = popRef.value
-            if (!parent) return
-            let lastChild = parent.lastElementChild || parent
+            const parent = popRef.value;
+            if (!parent) return;
+            let lastChild = parent.lastElementChild || parent;
             if (lastChild.tagName === 'PRE') {
-                lastChild = lastChild.getElementsByClassName('hljs')[0] || lastChild
+                lastChild = lastChild.getElementsByClassName('hljs')[0] || lastChild;
             }
             if (lastChild.tagName === 'OL') {
-                lastChild = findLastElement(lastChild as HTMLElement)
+                lastChild = findLastElement(lastChild as HTMLElement);
             }
-            lastChild?.insertAdjacentHTML('beforeend', '<span class="input-cursor"></span>')
+
+            // 移除现有的光标
+            const existingCursors = parent.querySelectorAll('.input-cursor');
+            existingCursors.forEach((cursor: { remove: () => any; }) => cursor.remove());
+
+            // 添加新的光标
+            lastChild?.insertAdjacentHTML('beforeend', '<span class="input-cursor"></span>');
         }
-    })
+    });
+
     return html
 })
 
@@ -122,7 +129,7 @@ const mkHtml = computed(() => {
     .msg-user-avatar {
         width: 40px;
         height: 40px;
-        margin-left: 10px;
+        margin-left: 10px; // 将间隙设为0
         font-size: 40px;
     }
 
@@ -140,10 +147,11 @@ const mkHtml = computed(() => {
 
         .msg-pop-container {
             display: inline-block;
-            max-width: 100%;
+            max-width: 90%;
+            display: flex;
 
             .msg-pop-default {
-                max-width: 90%;
+                max-width: 100%;
                 display: inline-block;
                 padding: 8px;
                 background: var(--server-bg-color);
@@ -159,7 +167,7 @@ const mkHtml = computed(() => {
             .msg-pop-primary {
                 background: #409eff;
                 color: white;
-                margin-left: auto;
+                margin-left: auto; // 这将推动元素到容器的右侧
             }
         }
     }
