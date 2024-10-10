@@ -274,6 +274,10 @@ tr:hover {
     padding: 10px;
     overflow-x: auto;
     border-radius: 0 0 4px 4px;
+    font-size: 1.2em;
+    /* 调整字体大小，可以根据需要设置为1.2em, 16px等合适的值 */
+    line-height: 1.5;
+    /* 设置行高以增加可读性 */
 
     .input-cursor {
         background: #fff;

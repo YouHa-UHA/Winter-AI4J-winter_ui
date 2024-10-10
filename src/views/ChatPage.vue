@@ -32,6 +32,7 @@
             <div class="message-container" ref="scrollFromRef">
                 <Msg v-for="(msg, index) in msgList" :role="msg.role" :content="msg.content" :key="index"></Msg>
                 <Msg v-if="streaming" role="server" :content="streamingText" :streaming="true"></Msg>
+                <el-backtop :right="100" :bottom="100" target=".message-container" />
             </div>
         </el-main>
 
@@ -50,7 +51,7 @@
 </template>
 
 <script setup lang="ts" name="ChatPage">
-import { ref, onMounted, nextTick, watchEffect } from "vue";
+import { ref, onMounted, nextTick, watchEffect, onBeforeUnmount } from "vue";
 import Msg from '../components/Msg.vue'
 import { useUserStore } from '@/stores/user'
 import * as ChatApi from '@/api/chatApi'
@@ -68,7 +69,7 @@ const inputMessage = ref("");
 const useUser = useUserStore()
 const scrollFromRef = ref()
 const { y } = useScroll(scrollFromRef)
-
+const isUserScrolling = ref(false); //用户是否在滚动
 
 const scrollToBottom = () => {
     nextTick(() => {
@@ -76,7 +77,7 @@ const scrollToBottom = () => {
     })
 }
 watchEffect(() => {
-    if (streamingText.value || msgList.value.length > 0) {
+    if (isUserScrolling.value == false && streamingText.value) {
         scrollToBottom();
     }
 });
@@ -144,6 +145,23 @@ onMounted(() => {
     msgList.value.push({ role: 'server', content: firstChatText })
     inputMessage.value = useUser.chat1stMsg
     sendMessage()
+
+    // 监听滚动事件
+    scrollFromRef.value.addEventListener('scroll', () => {
+        const el = scrollFromRef.value;
+        // 检查是否滚动到最底部
+        if (el.scrollTop + el.clientHeight >= el.scrollHeight - 5) {
+            // 如果滚动到最底部，恢复 isUserScrolling 为 false
+            isUserScrolling.value = false;
+        } else {
+            // 用户手动滚动，设置 isUserScrolling 为 true
+            isUserScrolling.value = true;
+        }
+    });
+});
+
+onBeforeUnmount(() => {
+    scrollFromRef.value.removeEventListener('scroll');
 });
 
 
