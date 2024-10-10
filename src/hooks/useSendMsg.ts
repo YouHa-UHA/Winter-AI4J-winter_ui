@@ -1,5 +1,5 @@
 import { ref } from 'vue';
-
+import * as chatApi from '../api/chatApi';
 interface GptMsg {
     role: 'user' | 'server';
     content: string;
@@ -13,13 +13,13 @@ interface QuestionInf {
 
 class StreamMsg {
     private onStart: (prompt: string) => void;
-    private onDone: () => void;
+    private onDone: (param: QuestionInf) => void;
     private onPatch: (text: string) => void;
     private abortController: AbortController | null = null;
 
     constructor(options: {
         onStart: (prompt: string) => void,
-        onDone: () => void,
+        onDone: (param: QuestionInf) => void,
         onPatch: (text: string) => void
     }) {
         this.onStart = options.onStart;
@@ -60,7 +60,7 @@ class StreamMsg {
                 const readChunk = () => {
                     reader.read().then(({ value, done }) => {
                         if (done) {
-                            this.onDone();
+                            this.onDone(param);
                             console.log('流读取完毕');
                             return;
                         }
@@ -106,9 +106,12 @@ class StreamMsg {
     }
 }
 
+
+
 export const useSendMsg = () => {
     const streamingText = ref('');
     const streaming = ref(false);
+    const follow = ref<string[]>()
     const msgList = ref<GptMsg[]>([]);
     const gpt = new StreamMsg({
         onStart: (prompt: string) => {
@@ -118,13 +121,16 @@ export const useSendMsg = () => {
                 content: prompt
             });
         },
-        onDone: () => {
+        onDone: async (param: QuestionInf) => {
             streaming.value = false;
             msgList.value.push({
                 role: 'server',
                 content: streamingText.value
             });
             streamingText.value = '';
+            //发送联想请求
+            const { data } = await chatApi.getFollow(param)
+            follow.value = data.follow
         },
         onPatch: (text: string) => {
             streamingText.value += text;
@@ -150,6 +156,7 @@ export const useSendMsg = () => {
         streaming,
         msgList,
         stream,
-        abortStream
+        abortStream,
+        follow
     };
 };

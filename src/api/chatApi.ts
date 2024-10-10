@@ -17,6 +17,14 @@ export const userLogin = async (params: any) => {
     })
 }
 
+export const getFollow = async (params: any) => {
+    return await request({
+        url: '/chat/follow',
+        method: 'post',
+        data: params
+    })
+}
+
 
 // 创建一个SSE连接，并返回一个关闭连接的函数，请求方式为GET
 const createSSEWithGet = (onMessageCallback: (msg: string) => void) => {
@@ -39,6 +47,3 @@ const createSSEWithGet = (onMessageCallback: (msg: string) => void) => {
         eventSource.close();
     };
 };
-const createSSEWithPost = (params: any, onMessageCallback: (msg: string) => void) => {
-
-}
