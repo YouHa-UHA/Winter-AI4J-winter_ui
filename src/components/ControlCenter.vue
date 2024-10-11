@@ -15,18 +15,25 @@
     </div>
 </template>
 <script setup lang="ts" name="ControlCenter">
-import { ref, watchEffect } from "vue";
+import { ref, watchEffect, onMounted } from "vue";
 import { Sunny, Moon, Tickets, ChatDotRound } from '@element-plus/icons-vue';  // 引入图标
 
 const openChatHistory = () => {
 }
-const ifDark = ref(false)
-// 监听 `isDarkMode` 变量的变化，动态修改 <html> 标签的 class
+onMounted(() => {
+    console.log(ifDark.value)
+})
+// 从localStorage获取初始暗黑模式状态，如果没有设置则默认为false
+const ifDark = ref(localStorage.getItem('darkMode') === 'true');
+
+// 监听 ifDark 的变化，每次变化时更新localStorage中的值
 watchEffect(() => {
     if (ifDark.value) {
         document.documentElement.classList.add('dark');
+        localStorage.setItem('darkMode', 'true');  // 保存状态到localStorage
     } else {
         document.documentElement.classList.remove('dark');
+        localStorage.setItem('darkMode', 'false'); // 保存状态到localStorage
     }
 });
 </script>

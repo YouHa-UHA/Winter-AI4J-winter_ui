@@ -13,13 +13,13 @@ interface QuestionInf {
 
 class StreamMsg {
     private onStart: (prompt: string) => void;
-    private onDone: (param: QuestionInf) => void;
+    private onDone: () => void;
     private onPatch: (text: string) => void;
     private abortController: AbortController | null = null;
 
     constructor(options: {
         onStart: (prompt: string) => void,
-        onDone: (param: QuestionInf) => void,
+        onDone: () => void,
         onPatch: (text: string) => void
     }) {
         this.onStart = options.onStart;
@@ -113,24 +113,28 @@ export const useSendMsg = () => {
     const streaming = ref(false);
     const follow = ref<string[]>()
     const msgList = ref<GptMsg[]>([]);
+    const param = ref<QuestionInf>()
     const gpt = new StreamMsg({
         onStart: (prompt: string) => {
+            follow.value = []
             streaming.value = true;
             msgList.value.push({
                 role: 'user',
                 content: prompt
             });
         },
-        onDone: async (param: QuestionInf) => {
+        onDone: async () => {
             streaming.value = false;
             msgList.value.push({
                 role: 'server',
                 content: streamingText.value
             });
             streamingText.value = '';
+            console.log(param.value)
             //发送联想请求
-            const { data } = await chatApi.getFollow(param)
-            follow.value = data.follow
+            const { data } = await chatApi.getFollow(param.value)
+            follow.value = data.data.follow
+            console.log(follow.value)
         },
         onPatch: (text: string) => {
             streamingText.value += text;
@@ -138,6 +142,7 @@ export const useSendMsg = () => {
     });
 
     const stream = (prompt: QuestionInf) => {
+        param.value = prompt
         gpt.getChatMsgStream(prompt);
     };
 

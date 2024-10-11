@@ -18,12 +18,19 @@ export const userLogin = async (params: any) => {
 }
 
 export const getFollow = async (params: any) => {
-    return await request({
-        url: '/chat/follow',
-        method: 'post',
-        data: params
-    })
+    try {
+        const response = await request({
+            url: '/chat/follow',
+            method: 'post',
+            data: params
+        });
+        return response;
+    } catch (error) {
+        console.error("联想请求失败:", error);
+        throw error; // 根据需要可以决定是否重新抛出异常
+    }
 }
+
 
 
 // 创建一个SSE连接，并返回一个关闭连接的函数，请求方式为GET

@@ -32,6 +32,11 @@
             <div class="message-container" ref="scrollFromRef">
                 <Msg v-for="(msg, index) in msgList" :role="msg.role" :content="msg.content" :key="index"></Msg>
                 <Msg v-if="streaming" role="server" :content="streamingText" :streaming="true"></Msg>
+                <div v-for="(item, index) in follow" :key="index" style="margin-left:40px;">
+                    <el-button type="primary" plain size="small" @click="handleFollow(item)" style="margin: 10px">
+                        {{ item }}
+                    </el-button>
+                </div>
                 <el-backtop :right="100" :bottom="100" target=".message-container" />
             </div>
         </el-main>
@@ -61,7 +66,7 @@ import { useRouter, useRoute } from "vue-router";
 import { useSendMsg } from "@/hooks/useSendMsg";
 import { useScroll } from '@vueuse/core'
 
-const { msgList, streaming, streamingText, stream, abortStream } = useSendMsg()
+const { msgList, streaming, streamingText, stream, abortStream, follow } = useSendMsg()
 const chatTitle = ref('新对话')
 const router = useRouter()
 const route = useRoute()
@@ -77,7 +82,7 @@ const scrollToBottom = () => {
     })
 }
 watchEffect(() => {
-    if (isUserScrolling.value == false && streamingText.value) {
+    if (isUserScrolling.value == false && (streamingText.value || follow.value)) {
         scrollToBottom();
     }
 });
@@ -135,7 +140,9 @@ const createChatId = async () => {
     useUser.chatId = data
     return String(useUser.chatId)
 }
-
+const handleFollow = (item: string) => {
+    stream({ chatId: useUser.chatId, appIndex: "ai_coze", question: item })
+}
 
 onMounted(() => {
     chatTitle.value = route.query.chatTitle as string || '新对话'
