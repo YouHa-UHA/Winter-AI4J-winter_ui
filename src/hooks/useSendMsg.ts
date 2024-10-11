@@ -60,7 +60,7 @@ class StreamMsg {
                 const readChunk = () => {
                     reader.read().then(({ value, done }) => {
                         if (done) {
-                            this.onDone(param);
+                            this.onDone();
                             console.log('流读取完毕');
                             return;
                         }
