@@ -42,7 +42,6 @@ const typeMessage = (message: string) => {
         }
     }, typingSpeed);
 };
-defineExpose({ typeMessage });
 
 const init = () => {
     // 获取所有 faulttext 类的元素
@@ -91,6 +90,8 @@ onMounted(() => {
 onBeforeUnmount(() => {
     clearInterval(player.value);
 });
+defineExpose({ typeMessage, triggerFault });
+
 </script>
 
 <style scoped>

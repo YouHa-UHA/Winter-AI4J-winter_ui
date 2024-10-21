@@ -66,6 +66,8 @@ const sendLogin = async () => {
         // 登录失败
         ifSendMsg.value = false
         titleContent.value = titleList[1]
+        faultRef.value.typeMessage(titleContent.value)
+        faultRef.value.triggerFault(titleContent.value)
     }
 };
 
@@ -93,7 +95,7 @@ const createChatId = async () => {
     const res = await ChatApi.getChatId({
         userID: "111111"
     })
-    const { data } = res.data
+    const data = res.data
     useUser.chatId = data
     return String(useUser.chatId)
 }

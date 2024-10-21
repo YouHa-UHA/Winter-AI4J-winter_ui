@@ -99,26 +99,15 @@ const sendMessage = async () => {
         return;
     }
 
-
-    // 检查登录
-    // router.push({ path: '/login' })
-    // return
-
     inputMessage.value = ''; // 清空输入框
     // 检查并获取 chatId
     if (!useUser.chatId) {
-        try {
-            const id = await createChatId();
-            if (!id || id === 'null') {
-                ElMessage.error('无法获取chatId，请稍后重试！');
-                return;
-            }
-            useUser.chatId = id; // 保存获取到的 chatId
-        } catch (error) {
-            ElMessage.error('获取chatId失败，请稍后重试！');
-            console.error('获取 chatId 错误:', error);
+        const id = await createChatId();
+        if (!id || id === 'null') {
+            ElMessage.error('无法获取chatId，请稍后重试！');
             return;
         }
+        useUser.chatId = id; // 保存获取到的 chatId
     }
 
     // 根据已有 chatId 获取对话结果
@@ -136,14 +125,24 @@ const createChatId = async () => {
     const res = await ChatApi.getChatId({
         userID: "111111"
     })
-    const { data } = res.data
+    const data = res.data
     useUser.chatId = data
     return String(useUser.chatId)
 }
 const handleFollow = (item: string) => {
     stream({ chatId: useUser.chatId, appIndex: "ai_coze", question: item })
 }
-
+const handleScroll = () => {
+    const el = scrollFromRef.value;
+    // 检查是否滚动到最底部
+    if (el.scrollTop + el.clientHeight >= el.scrollHeight - 5) {
+        // 如果滚动到最底部，恢复 isUserScrolling 为 false
+        isUserScrolling.value = false;
+    } else {
+        // 用户手动滚动，设置 isUserScrolling 为 true
+        isUserScrolling.value = true;
+    }
+};
 onMounted(() => {
     chatTitle.value = route.query.chatTitle as string || '新对话'
     //获取问候语，并打印
@@ -154,21 +153,11 @@ onMounted(() => {
     sendMessage()
 
     // 监听滚动事件
-    scrollFromRef.value.addEventListener('scroll', () => {
-        const el = scrollFromRef.value;
-        // 检查是否滚动到最底部
-        if (el.scrollTop + el.clientHeight >= el.scrollHeight - 5) {
-            // 如果滚动到最底部，恢复 isUserScrolling 为 false
-            isUserScrolling.value = false;
-        } else {
-            // 用户手动滚动，设置 isUserScrolling 为 true
-            isUserScrolling.value = true;
-        }
-    });
+    scrollFromRef.value.addEventListener('scroll', handleScroll);
 });
 
 onBeforeUnmount(() => {
-    scrollFromRef.value.removeEventListener('scroll');
+    scrollFromRef.value.removeEventListener('scroll', handleScroll);
 });
 
 
