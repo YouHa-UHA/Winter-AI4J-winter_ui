@@ -68,7 +68,6 @@ import { useScroll } from '@vueuse/core'
 
 const { msgList, streaming, streamingText, stream, abortStream, follow } = useSendMsg()
 const chatTitle = ref('新对话')
-const router = useRouter()
 const route = useRoute()
 const inputMessage = ref("");
 const useUser = useUserStore()
@@ -111,7 +110,6 @@ const sendMessage = async () => {
     }
 
     // 根据已有 chatId 获取对话结果
-    // todo 上个问题打印完之后才能输入下个问题
     try {
         stream({ chatId: useUser.chatId, appIndex: "ai_coze", question: message })
     } catch (error) {
@@ -122,11 +120,10 @@ const sendMessage = async () => {
 
 
 const createChatId = async () => {
-    const res = await ChatApi.getChatId({
+    const {data} = await ChatApi.getChatId({
         userID: "111111"
     })
-    const data = res.data
-    useUser.chatId = data
+    useUser.chatId = data.data
     return String(useUser.chatId)
 }
 const handleFollow = (item: string) => {

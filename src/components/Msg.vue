@@ -100,7 +100,7 @@ const renderedContent = computed(() => {
     if (props.role === 'user') {
         return props.content
     }
-    let html = md.render(props.content)
+    let html = md.render("| 标题1 | 标题2 | 标题3 |\n|-------|-------|-------|\n| 单元格1 | 单元格2 | 单元格3 |\n| 单元格4 | 单元格5 | 单元格6 |")
     nextTick(() => {
         if (props.streaming) {
             const parent = contentRef.value;
@@ -191,8 +191,8 @@ const renderedContent = computed(() => {
     color: white;
 }
 </style>
-<style lang="scss">
-table {
+<style lang="scss" scoped>
+:deep() table {
     width: 100%;
     border-collapse: collapse;
     margin-top: 10px;
@@ -202,8 +202,8 @@ table {
     /* 黑色文字 */
 }
 
-th,
-td {
+:deep() th,
+:deep() td {
     border: 1px solid #ddd;
     /* 灰色边框 */
     padding: 12px;
@@ -212,19 +212,19 @@ td {
     /* 左对齐 */
 }
 
-th {
+:deep() th {
     background-color: #f6f8fa;
     /* 表头背景颜色 */
     font-weight: bold;
     /* 表头加粗 */
 }
 
-tr:nth-child(even) {
+:deep() tr:nth-child(even) {
     background-color: #f6f8fa;
     /* 偶数行背景颜色 */
 }
 
-tr:hover {
+:deep() tr:hover {
     background-color: #f1f1f1;
     /* 悬停时的背景颜色 */
 }

@@ -92,11 +92,10 @@ const sendMessage = async () => {
     }
 }
 const createChatId = async () => {
-    const res = await ChatApi.getChatId({
+    const {data} = await ChatApi.getChatId({
         userID: "111111"
     })
-    const data = res.data
-    useUser.chatId = data
+    useUser.chatId = data.data
     return String(useUser.chatId)
 }
 const sendSubmit = async () => {

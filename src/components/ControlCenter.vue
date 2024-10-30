@@ -13,12 +13,15 @@
         <div><el-button :icon="ifDark ? Moon : Sunny" :color="ifDark ? '#626aef' : '#e6a23c'" @click="ifDark = !ifDark"
                 circle class="center-btn"></el-button></div>
     </div>
+   <ChatHistory ref="chatHistroyRef" />
 </template>
 <script setup lang="ts" name="ControlCenter">
 import { ref, watchEffect, onMounted } from "vue";
 import { Sunny, Moon, Tickets, ChatDotRound } from '@element-plus/icons-vue';  // 引入图标
-
+import ChatHistory from '@/views/ChatHistory.vue'
+const chatHistroyRef=ref()
 const openChatHistory = () => {
+    chatHistroyRef.value.open()
 }
 onMounted(() => {
     console.log(ifDark.value)

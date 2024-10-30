@@ -31,6 +31,12 @@ export const getFollow = async (params: any) => {
     }
 }
 
+export const getHistoryList = async () => {
+    return await request({
+        url: '/chat/list',
+        method: 'post'
+    })
+}
 
 
 // 创建一个SSE连接，并返回一个关闭连接的函数，请求方式为GET

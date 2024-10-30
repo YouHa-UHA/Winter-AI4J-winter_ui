@@ -12,6 +12,7 @@ const expandControl = () => {
 
 <template>
   <el-row class="container">
+    <!-- 控制中心 -->
     <el-col :span="ifShowControl ? 1 : 0" class="aside">
       <ControlCenter v-show="ifShowControl" />
     </el-col>
@@ -23,9 +24,8 @@ const expandControl = () => {
         </el-button>
         <!-- </el-tooltip> -->
       </div>
-
     </el-col>
-
+    <!-- 主页面 -->
     <el-col :span="ifShowControl ? 22 : 23">
       <router-view v-slot="{ Component, route }">
         <transition :name="route.meta.transition ? route.meta.transition as string : ''">
@@ -34,7 +34,6 @@ const expandControl = () => {
       </router-view>
     </el-col>
   </el-row>
-
 </template>
 <style scoped>
 .aside {
