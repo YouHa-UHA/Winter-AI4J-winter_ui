@@ -31,3 +31,9 @@ npm run dev
 ```sh
 npm run build
 ```
+
+## 🌟 Star History
+
+## Star History
+
+[![Star History Chart](https://api.star-history.com/svg?repos=YouHa-UHA/Winter-AI4J-winter_ui&type=Date)](https://star-history.com/#YouHa-UHA/Winter-AI4J-winter_ui&Date)
