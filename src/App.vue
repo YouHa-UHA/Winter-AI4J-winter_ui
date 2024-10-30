@@ -3,7 +3,6 @@ import { RouterView } from "vue-router";
 import ControlCenter from "@/components/ControlCenter.vue";
 import { ref } from "vue";
 import { ArrowLeftBold, ArrowRightBold } from "@element-plus/icons-vue";
-
 const ifShowControl = ref(true);
 const expandControl = () => {
   ifShowControl.value = !ifShowControl.value;

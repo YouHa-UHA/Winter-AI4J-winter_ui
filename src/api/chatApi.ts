@@ -38,7 +38,7 @@ export const getHistoryList = async () => {
     })
 }
 
-export const getChatHistory = async (param) => {
+export const getChatHistory = async (param: any) => {
     return await request({
         url: '/chat/query',
         method: 'post',

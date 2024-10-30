@@ -100,7 +100,7 @@ import {
   VideoPause,
   CircleCheck,
 } from "@element-plus/icons-vue"; // 引入图标
-import { useRouter, useRoute } from "vue-router";
+import { useRoute } from "vue-router";
 import { useSendMsg } from "@/hooks/useSendMsg";
 import { useScroll } from "@vueuse/core";
 

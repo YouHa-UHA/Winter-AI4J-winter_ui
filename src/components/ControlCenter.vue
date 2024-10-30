@@ -4,7 +4,7 @@
       <el-tooltip effect="customized" content="开启新会话" placement="right">
         <el-button
           :icon="ChatDotRound"
-          @click="openChatHistory"
+          @click="openChatNew"
           circle
           class="center-btn"
         ></el-button>
@@ -36,13 +36,17 @@
 import { ref, watchEffect, onMounted } from "vue";
 import { Sunny, Moon, Tickets, ChatDotRound } from "@element-plus/icons-vue"; // 引入图标
 import ChatHistory from "@/views/ChatHistory.vue";
+import { useRouter } from "vue-router";
+
+const router = useRouter();
 const chatHistroyRef = ref();
+const openChatNew = () => {
+  router.push("/");
+};
 const openChatHistory = () => {
   chatHistroyRef.value.open();
 };
-onMounted(() => {
-  console.log(ifDark.value);
-});
+
 // 从localStorage获取初始暗黑模式状态，如果没有设置则默认为false
 const ifDark = ref(localStorage.getItem("darkMode") === "true");
 
