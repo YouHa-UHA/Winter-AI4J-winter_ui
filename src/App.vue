@@ -1,13 +1,13 @@
 <script setup lang="ts">
-import { RouterView } from 'vue-router'
-import ControlCenter from '@/components/ControlCenter.vue'
-import { ref } from 'vue'
-import { ArrowLeftBold, ArrowRightBold } from '@element-plus/icons-vue'
+import { RouterView } from "vue-router";
+import ControlCenter from "@/components/ControlCenter.vue";
+import { ref } from "vue";
+import { ArrowLeftBold, ArrowRightBold } from "@element-plus/icons-vue";
 
-const ifShowControl = ref(true)
+const ifShowControl = ref(true);
 const expandControl = () => {
-  ifShowControl.value = !ifShowControl.value
-}
+  ifShowControl.value = !ifShowControl.value;
+};
 </script>
 
 <template>
@@ -19,8 +19,13 @@ const expandControl = () => {
     <el-col :span="1" class="aside">
       <div class="display-expand">
         <!-- <el-tooltip :content="ifShowControl ? '收起' : '展开'" placement="right"> -->
-        <el-button class="hide-button" link plain :icon="ifShowControl ? ArrowLeftBold : ArrowRightBold"
-          @click="expandControl">
+        <el-button
+          class="hide-button"
+          link
+          plain
+          :icon="ifShowControl ? ArrowLeftBold : ArrowRightBold"
+          @click="expandControl"
+        >
         </el-button>
         <!-- </el-tooltip> -->
       </div>
@@ -28,7 +33,9 @@ const expandControl = () => {
     <!-- 主页面 -->
     <el-col :span="ifShowControl ? 22 : 23">
       <router-view v-slot="{ Component, route }">
-        <transition :name="route.meta.transition ? route.meta.transition as string : ''">
+        <transition
+          :name="route.meta.transition ? route.meta.transition as string : ''"
+        >
           <component :is="Component" />
         </transition>
       </router-view>
@@ -62,24 +69,20 @@ const expandControl = () => {
   transition: all 0.75s ease-out;
 }
 
-
 .slide-enter-to {
   position: absolute;
   bottom: 0;
 }
-
 
 .slide-enter-from {
   position: absolute;
   bottom: -100%;
 }
 
-
 .slide-leave-to {
   position: absolute;
   top: -100%;
 }
-
 
 .slide-leave-from {
   position: absolute;
