@@ -1,7 +1,7 @@
 <template>
     <div>
         <el-dialog title="会话历史" v-model="dialogVisible" :fullscreen="true">
-                    <el-input v-model="keyWord" placeholder="搜索历史会话" 
+                    <el-input v-model="keyWord" placeholder="搜索历史会话" id="input"
                         @keyup.enter="selectHistroy" />
             <br />
             <br /> 
@@ -37,6 +37,7 @@ const selectHistroy=async()=>{
 const open=()=>{
     dialogVisible.value=true
     selectHistroy()
+    document.getElementById("input")?.focus();
 }
 
 defineExpose({open})

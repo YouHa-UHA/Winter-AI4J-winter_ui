@@ -100,7 +100,7 @@ const renderedContent = computed(() => {
     if (props.role === 'user') {
         return props.content
     }
-    let html = md.render("| 标题1 | 标题2 | 标题3 |\n|-------|-------|-------|\n| 单元格1 | 单元格2 | 单元格3 |\n| 单元格4 | 单元格5 | 单元格6 |")
+    let html = md.render(props.content)
     nextTick(() => {
         if (props.streaming) {
             const parent = contentRef.value;
