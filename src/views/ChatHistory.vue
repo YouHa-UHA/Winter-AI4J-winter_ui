@@ -7,22 +7,41 @@
           ref="inputRef"
           placeholder="搜索历史会话"
           style="width: 70%; margin: auto"
-          @keyup.enter="selectHistroy"
+          @keyup.enter="selectList"
         />
       </div>
       <br />
       <br />
-      <el-table :data="tableData" style="width: 100%">
-        <el-table-column prop="chatName" align="center" label="会话名称" />
-        <el-table-column prop="updateTime" align="center" label="会话时间" />
-      </el-table>
+      <el-card
+        v-for="item in tableData"
+        :key="item.id"
+        @click="selectHistory(item)"
+        style="margin-bottom: 10px"
+        shadow="never"
+      >
+        <div
+          style="
+            display: flex;
+            flex-direction: row;
+            gap: 30px;
+            align-items: center;
+          "
+        >
+          <el-icon><Tickets /></el-icon>
+          <div style="font-size: 16px; font-weight: bold">
+            {{ item.chatName }}
+          </div>
+          <div style="margin-left: auto">{{ item.updateTime }}</div>
+        </div>
+      </el-card>
     </el-dialog>
   </div>
 </template>
 <script setup lang="ts" name="ChatHistroy">
 import { ref } from "vue";
-import { getHistoryList } from "@/api/chatApi";
+import { getHistoryList, getChatHistory } from "@/api/chatApi";
 import { ElInput } from "element-plus";
+import { Tickets } from "@element-plus/icons-vue"; // 引入图标
 
 const dialogVisible = ref(false);
 const keyWord = ref("");
@@ -37,7 +56,7 @@ interface ChatHistoryVo {
   updateTime: string;
 }
 const tableData = ref<ChatHistoryVo[]>();
-const selectHistroy = async () => {
+const selectList = async () => {
   const { data } = await getHistoryList();
   tableData.value = data.data;
 };
@@ -46,10 +65,18 @@ const open = () => {
   setTimeout(() => {
     inputRef.value?.focus();
   }, 0); // 短暂延迟
-  selectHistroy();
+  selectList();
 };
-
+const selectHistory = async (row: ChatHistoryVo) => {
+  const { data } = await getChatHistory({ chatId: row.chatId });
+  console.log(data);
+};
 defineExpose({ open });
 </script>
 <style scoped>
+:deep() .el-card:hover {
+  box-shadow: 0 1px 6px rgba(255, 255, 255, 0.932);
+  background-color: var(--bg-color);
+  transition: all 0.2s ease-in-out;
+}
 </style>

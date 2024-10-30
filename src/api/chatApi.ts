@@ -38,6 +38,13 @@ export const getHistoryList = async () => {
     })
 }
 
+export const getChatHistory = async (param) => {
+    return await request({
+        url: '/chat/query',
+        method: 'post',
+        data: param
+    })
+}
 
 // 创建一个SSE连接，并返回一个关闭连接的函数，请求方式为GET
 const createSSEWithGet = (onMessageCallback: (msg: string) => void) => {
