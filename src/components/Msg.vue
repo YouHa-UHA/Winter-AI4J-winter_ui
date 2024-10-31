@@ -208,8 +208,6 @@ const renderedContent = computed(() => {
 .footer-button {
   color: white;
 }
-</style>
-<style lang="scss" scoped>
 :deep() table {
   width: 100%;
   border-collapse: collapse;
@@ -246,7 +244,8 @@ const renderedContent = computed(() => {
   background-color: #f1f1f1;
   /* 悬停时的背景颜色 */
 }
-
+</style>
+<style lang="scss">
 .copy-btn {
   background-color: #1d2635;
   color: white;

@@ -42,6 +42,7 @@ import { ref } from "vue";
 import { getHistoryList, getChatHistory } from "@/api/chatApi";
 import { ElInput } from "element-plus";
 import { Tickets } from "@element-plus/icons-vue"; // 引入图标
+import { ElMessage } from "element-plus";
 
 const dialogVisible = ref(false);
 const keyWord = ref("");
@@ -57,8 +58,14 @@ interface ChatHistoryVo {
 }
 const tableData = ref<ChatHistoryVo[]>();
 const selectList = async () => {
-  const { data } = await getHistoryList();
-  tableData.value = data.data;
+  try {
+    const { data } = await getHistoryList({ pageNum: 1, pageSize: 10 });
+    console.log(data);
+    tableData.value = data.data.data;
+  } catch (error) {
+    tableData.value = [];
+    ElMessage.warning("暂无相关结果");
+  }
 };
 const open = () => {
   dialogVisible.value = true;

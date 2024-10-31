@@ -21,6 +21,7 @@ const service = axios.create({
 service.interceptors.response.use(
     async (response: AxiosResponse) => {
         if (response.status === 208) {
+            console.log('跳转到登录页')
             router.push('/login'); // 跳转到登录页
             return Promise.reject(new UnauthenticatedError()); // 阻止后续代码执行
         }

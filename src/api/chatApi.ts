@@ -31,10 +31,11 @@ export const getFollow = async (params: any) => {
     }
 }
 
-export const getHistoryList = async () => {
+export const getHistoryList = async (param: any) => {
     return await request({
         url: '/chat/list',
-        method: 'post'
+        method: 'post',
+        data: param
     })
 }
 
