@@ -53,6 +53,13 @@ export const checkLogin = async () => {
         method: 'post'
     })
 }
+
+export const logout = async () => {
+    return await request({
+        url: '/user/logout',
+        method: 'post'
+    })
+}
 // 创建一个SSE连接，并返回一个关闭连接的函数，请求方式为GET
 const createSSEWithGet = (onMessageCallback: (msg: string) => void) => {
     const eventSource = new EventSource('/api/chat/sse');

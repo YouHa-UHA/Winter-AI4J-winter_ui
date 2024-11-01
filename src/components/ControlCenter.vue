@@ -1,6 +1,16 @@
 <template>
   <div class="custom-center">
     <div>
+      <el-tooltip effect="customized" content="用户" placement="right">
+        <el-button
+          :icon="User"
+          @click="loginOut"
+          circle
+          class="center-btn"
+        ></el-button>
+      </el-tooltip>
+    </div>
+    <div>
       <el-tooltip effect="customized" content="开启新会话" placement="right">
         <el-button
           :icon="ChatDotRound"
@@ -35,13 +45,44 @@
 <script setup lang="ts" name="ControlCenter">
 import { ref, watch } from "vue";
 import { useUserStore } from "@/stores/user";
-import { Sunny, Moon, Tickets, ChatDotRound } from "@element-plus/icons-vue"; // 引入图标
+import {
+  Sunny,
+  Moon,
+  Tickets,
+  ChatDotRound,
+  User,
+} from "@element-plus/icons-vue"; // 引入图标
 import ChatHistory from "@/views/ChatHistory.vue";
 import { useRouter } from "vue-router";
+import { checkLogin, logout } from "@/api/chatApi";
+import { ElMessageBox } from "element-plus";
+import { log } from "console";
 
 const router = useRouter();
 const chatHistroyRef = ref();
 const useUser = useUserStore();
+const ifLogin = ref(false);
+
+const loginOut = async () => {
+  // 登录或登出
+  const { data } = await checkLogin();
+  ifLogin.value = data.data == "已登录" ? true : false;
+  if (ifLogin.value) {
+    ElMessageBox.confirm("确定退出登录吗？", "退出登录", {
+      confirmButtonText: "确定",
+      cancelButtonText: "取消",
+    })
+      .then(async () => {
+        // 退出登录
+        const { data } = await logout();
+        console.log(data);
+        router.push({ path: "/login", query: { date: new Date().getTime() } });
+      })
+      .catch(() => {});
+  } else {
+    router.push("/login");
+  }
+};
 const openChatNew = () => {
   console.log("openChatNew");
   // 开启新会话，会话title置空

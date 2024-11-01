@@ -53,8 +53,8 @@
   </div>
 </template>
 <script setup lang="ts" name="ChatLogin">
-import { ref, onMounted } from "vue";
-import { useRouter } from "vue-router";
+import { ref, onMounted, watch } from "vue";
+import { useRoute, useRouter } from "vue-router";
 import { useUserStore } from "@/stores/user";
 import * as ChatApi from "@/api/chatApi";
 import { ElMessage } from "element-plus";
@@ -74,6 +74,7 @@ const titleList = [
 ];
 const titleContent = ref(titleList[0]);
 const router = useRouter();
+const route = useRoute();
 
 const sendLogin = async () => {
   const { data } = await ChatApi.userLogin({
@@ -89,7 +90,7 @@ const sendLogin = async () => {
     useUser.loginId = data.loginId;
   } else {
     // 登录失败
-    loginFail();
+    loginFail(1);
   }
 };
 const loginSuccess = () => {
@@ -97,9 +98,9 @@ const loginSuccess = () => {
   titleContent.value = titleList[2];
   faultRef.value.typeMessage(titleContent.value);
 };
-const loginFail = () => {
+const loginFail = (index: number) => {
   ifSendMsg.value = false;
-  titleContent.value = titleList[1];
+  titleContent.value = titleList[index];
   faultRef.value.typeMessage(titleContent.value);
   faultRef.value.triggerFault(titleContent.value);
 };
@@ -140,15 +141,27 @@ const sendSubmit = async () => {
     await sendLogin();
   }
 };
-onMounted(async () => {
+const init = async () => {
+  console.log("执行login页面init");
   //校验是否登录
   const { data } = await ChatApi.checkLogin();
   if (data.data == "已登录") {
     loginSuccess();
   } else {
-    loginFail();
+    loginFail(0);
   }
+};
+onMounted(async () => {
+  await init();
 });
+watch(
+  () => route.query.date,
+  async () => {
+    // route.query.chatTitle = "新对话";
+    console.log("监控到route 变化");
+    await init();
+  }
+);
 </script>
 
 <style scoped>
