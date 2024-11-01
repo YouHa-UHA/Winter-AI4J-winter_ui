@@ -83,21 +83,26 @@ const sendLogin = async () => {
   console.log(data);
   if (data.code == 200) {
     // 登录成功
-    ifSendMsg.value = true;
-    titleContent.value = titleList[2];
-    faultRef.value.typeMessage(titleContent.value);
+    loginSuccess();
     // 获取token信息，存储到pinia
     useUser.token = data.tokenValue;
     useUser.loginId = data.loginId;
   } else {
     // 登录失败
-    ifSendMsg.value = false;
-    titleContent.value = titleList[1];
-    faultRef.value.typeMessage(titleContent.value);
-    faultRef.value.triggerFault(titleContent.value);
+    loginFail();
   }
 };
-
+const loginSuccess = () => {
+  ifSendMsg.value = true;
+  titleContent.value = titleList[2];
+  faultRef.value.typeMessage(titleContent.value);
+};
+const loginFail = () => {
+  ifSendMsg.value = false;
+  titleContent.value = titleList[1];
+  faultRef.value.typeMessage(titleContent.value);
+  faultRef.value.triggerFault(titleContent.value);
+};
 const sendMessage = async () => {
   //获取对话信息，存储到pinia
 
@@ -135,7 +140,15 @@ const sendSubmit = async () => {
     await sendLogin();
   }
 };
-onMounted(() => {});
+onMounted(async () => {
+  //校验是否登录
+  const { data } = await ChatApi.checkLogin();
+  if (data.data == "已登录") {
+    loginSuccess();
+  } else {
+    loginFail();
+  }
+});
 </script>
 
 <style scoped>
