@@ -87,7 +87,7 @@
 </template>
 
 <script setup lang="ts" name="ChatPage">
-import { ref, onMounted, nextTick, watchEffect, onBeforeUnmount } from "vue";
+import { ref, onMounted, nextTick, watch, onBeforeUnmount } from "vue";
 import Msg from "../components/Msg.vue";
 import { useUserStore } from "@/stores/user";
 import * as ChatApi from "@/api/chatApi";
@@ -119,7 +119,7 @@ const scrollToBottom = () => {
     y.value = scrollFromRef.value?.scrollHeight || 0;
   });
 };
-watchEffect(() => {
+watch([isUserScrolling, streamingText, follow], () => {
   if (isUserScrolling.value == false && (streamingText.value || follow.value)) {
     scrollToBottom();
   }

@@ -33,7 +33,7 @@
   <ChatHistory ref="chatHistroyRef" />
 </template>
 <script setup lang="ts" name="ControlCenter">
-import { ref, watchEffect, onMounted } from "vue";
+import { ref, watch } from "vue";
 import { Sunny, Moon, Tickets, ChatDotRound } from "@element-plus/icons-vue"; // 引入图标
 import ChatHistory from "@/views/ChatHistory.vue";
 import { useRouter } from "vue-router";
@@ -42,6 +42,7 @@ const router = useRouter();
 const chatHistroyRef = ref();
 const openChatNew = () => {
   router.push("/");
+  location.reload();
 };
 const openChatHistory = () => {
   chatHistroyRef.value.open();
@@ -51,7 +52,7 @@ const openChatHistory = () => {
 const ifDark = ref(localStorage.getItem("darkMode") === "true");
 
 // 监听 ifDark 的变化，每次变化时更新localStorage中的值
-watchEffect(() => {
+watch(ifDark, () => {
   if (ifDark.value) {
     document.documentElement.classList.add("dark");
     localStorage.setItem("darkMode", "true"); // 保存状态到localStorage
