@@ -38,7 +38,7 @@
         ></Msg>
         <Msg
           v-if="streaming"
-          role="server"
+          role="assistant"
           :content="streamingText"
           :streaming="true"
         ></Msg>
@@ -185,7 +185,7 @@ onMounted(() => {
   const firstChatText =
     "你好，欢迎来到WinterAI \uD83C\uDF89\n" +
     "很高兴与你交流任何话题，欢迎随时来找我！";
-  msgList.value.push({ role: "server", content: firstChatText });
+  msgList.value.push({ role: "assistant", content: firstChatText });
   inputMessage.value = useUser.chat1stMsg;
   sendMessage();
 

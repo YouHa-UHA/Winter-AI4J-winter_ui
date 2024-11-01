@@ -1,7 +1,7 @@
 import { ref } from 'vue';
 import * as chatApi from '../api/chatApi';
 interface GptMsg {
-    role: 'user' | 'server';
+    role: 'user' | 'assistant';
     content: string;
 }
 
@@ -126,7 +126,7 @@ export const useSendMsg = () => {
         onDone: async () => {
             streaming.value = false;
             msgList.value.push({
-                role: 'server',
+                role: 'assistant',
                 content: streamingText.value
             });
             streamingText.value = '';
@@ -149,7 +149,7 @@ export const useSendMsg = () => {
     const abortStream = () => {
         streaming.value = false;
         msgList.value.push({
-            role: 'server',
+            role: 'assistant',
             content: streamingText.value
         });
         streamingText.value = '';

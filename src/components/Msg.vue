@@ -1,7 +1,7 @@
 <template>
-  <div class="msg-item" :class="{ 'msg-item-system': role === 'server' }">
+  <div class="msg-item" :class="{ 'msg-item-system': role === 'assistant' }">
     <div class="msg-content">
-      <el-icon v-if="role === 'server'" class="msg-server-avatar">
+      <el-icon v-if="role === 'assistant'" class="msg-server-avatar">
         <ChatDotRound />
       </el-icon>
       <span class="msg-pop-container">
@@ -41,7 +41,7 @@ const copyText = () => {
   navigator.clipboard.writeText(text);
 };
 interface Props {
-  role: "user" | "server";
+  role: "user" | "assistant";
   content: string;
   streaming?: boolean;
 }
