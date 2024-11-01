@@ -12,28 +12,39 @@
       </div>
       <br />
       <br />
-      <el-card
-        v-for="item in tableData"
-        :key="item.id"
-        @click="selectHistory(item)"
-        style="margin-bottom: 10px"
-        shadow="never"
+      <div
+        @scroll="handleScroll"
+        ref="scrollRef"
+        style="height: 80vh; overflow: auto"
       >
-        <div
-          style="
-            display: flex;
-            flex-direction: row;
-            gap: 30px;
-            align-items: center;
-          "
+        <el-card
+          v-for="item in tableData"
+          :key="item.id"
+          @click="selectHistory(item)"
+          style="margin-bottom: 10px"
+          shadow="never"
         >
-          <el-icon><Tickets /></el-icon>
-          <div style="font-size: 16px; font-weight: bold">
-            {{ item.chatName }}
+          <div
+            style="
+              display: flex;
+              flex-direction: row;
+              gap: 30px;
+              align-items: center;
+            "
+          >
+            <el-icon><Tickets /></el-icon>
+            <div style="font-size: 16px; font-weight: bold">
+              {{ item.chatName }}
+            </div>
+            <div style="margin-left: auto">{{ item.updateTime }}</div>
           </div>
-          <div style="margin-left: auto">{{ item.updateTime }}</div>
+        </el-card>
+        <div style="display: flex">
+          <span style="margin: auto" v-if="ifSelectAll"
+            >已显示所有可用内容</span
+          >
         </div>
-      </el-card>
+      </div>
     </el-dialog>
   </div>
 </template>
@@ -45,7 +56,11 @@ import { Tickets } from "@element-plus/icons-vue"; // 引入图标
 import { ElMessage } from "element-plus";
 
 const dialogVisible = ref(false);
+const scrollRef = ref();
+const pageNum = ref(1);
+const pageSize = ref(10);
 const keyWord = ref("");
+const ifSelectAll = ref(false);
 const inputRef = ref<InstanceType<typeof ElInput> | null>(null);
 interface ChatHistoryVo {
   chatId: string;
@@ -56,18 +71,29 @@ interface ChatHistoryVo {
   time: string;
   updateTime: string;
 }
-const tableData = ref<ChatHistoryVo[]>();
+const tableData = ref<ChatHistoryVo[]>([]);
 const selectList = async () => {
+  if (ifSelectAll.value) {
+    return; //已经全部查完就不需要再发请求了
+  }
   try {
-    const { data } = await getHistoryList({ pageNum: 1, pageSize: 10 });
-    console.log(data);
-    tableData.value = data.data.data;
+    const { data } = await getHistoryList({
+      pageNum: pageNum.value,
+      pageSize: pageSize.value,
+    });
+    tableData.value.push(...data.data.data);
+    if (data.data.data.length == 0) {
+      ifSelectAll.value = true;
+    }
   } catch (error) {
     tableData.value = [];
     ElMessage.warning("暂无相关结果");
   }
 };
 const open = () => {
+  tableData.value = [];
+  pageNum.value = 1;
+  ifSelectAll.value = false;
   dialogVisible.value = true;
   setTimeout(() => {
     inputRef.value?.focus();
@@ -77,6 +103,16 @@ const open = () => {
 const selectHistory = async (row: ChatHistoryVo) => {
   const { data } = await getChatHistory({ chatId: row.chatId });
   console.log(data);
+};
+const handleScroll = () => {
+  if (
+    scrollRef.value.scrollTop + scrollRef.value.clientHeight >=
+    scrollRef.value.scrollHeight - 10
+  ) {
+    // 触底发送新的分页请求
+    pageNum.value++;
+    selectList();
+  }
 };
 defineExpose({ open });
 </script>

@@ -34,15 +34,22 @@
 </template>
 <script setup lang="ts" name="ControlCenter">
 import { ref, watch } from "vue";
+import { useUserStore } from "@/stores/user";
 import { Sunny, Moon, Tickets, ChatDotRound } from "@element-plus/icons-vue"; // 引入图标
 import ChatHistory from "@/views/ChatHistory.vue";
 import { useRouter } from "vue-router";
 
 const router = useRouter();
 const chatHistroyRef = ref();
+const useUser = useUserStore();
 const openChatNew = () => {
-  router.push("/");
-  location.reload();
+  console.log("openChatNew");
+  // 开启新会话，会话title置空
+  useUser.chat1stMsg = "";
+  router.replace({
+    path: "/",
+    query: { chatTitle: String(Math.random()) },
+  }); // 替换路由并清除参数
 };
 const openChatHistory = () => {
   chatHistroyRef.value.open();

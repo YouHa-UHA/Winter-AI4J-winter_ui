@@ -136,6 +136,11 @@ const sendMessage = async () => {
   if (message === "") {
     return;
   }
+  if (useUser.chat1stMsg == "") {
+    console.log("为会话title赋值");
+    useUser.chat1stMsg = message.substring(0, 5);
+    chatTitle.value = message.substring(0, 5);
+  }
 
   inputMessage.value = ""; // 清空输入框
   // 检查并获取 chatId
@@ -178,14 +183,25 @@ const handleScroll = () => {
     isUserScrolling.value = true;
   }
 };
-onMounted(() => {
+const resetValue = () => {
+  msgList.value = [];
+  follow.value = [];
+  streaming.value = false;
+  y.value = 0;
+};
+const init = () => {
+  resetValue();
   inputRef.value.focus();
-  chatTitle.value = (route.query.chatTitle as string) || "新对话";
+  chatTitle.value = useUser.chat1stMsg || "未命名会话";
   //获取问候语，并打印
   const firstChatText =
     "你好，欢迎来到WinterAI \uD83C\uDF89\n" +
     "很高兴与你交流任何话题，欢迎随时来找我！";
   msgList.value.push({ role: "assistant", content: firstChatText });
+};
+onMounted(() => {
+  //清空上次聊天
+  init();
   inputMessage.value = useUser.chat1stMsg;
   sendMessage();
 
@@ -196,6 +212,14 @@ onMounted(() => {
 onBeforeUnmount(() => {
   scrollFromRef.value.removeEventListener("scroll", handleScroll);
 });
+watch(
+  () => route.query.chatTitle,
+  () => {
+    // route.query.chatTitle = "新对话";
+    console.log("监控到route 变化");
+    init();
+  }
+);
 </script>
 
 <style scoped>
