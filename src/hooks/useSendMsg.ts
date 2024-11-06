@@ -1,17 +1,16 @@
+// src/hooks/useSendMsg.ts
 import { ref } from 'vue';
 import * as chatApi from '../api/chatApi';
-interface GptMsg {
-    role: 'user' | 'assistant';
-    content: string;
-}
+import type { GptMsg } from '@/utils/types';
+import { useChatStore } from '@/stores/chat';
 
-interface QuestionInf {
+export interface QuestionInf {
     chatId: string;
     appIndex: string;
     question: string;
 }
 
-class StreamMsg {
+export class StreamMsg {
     private onStart: (prompt: string) => void;
     private onDone: () => void;
     private onPatch: (text: string) => void;
@@ -106,35 +105,40 @@ class StreamMsg {
     }
 }
 
-
-
 export const useSendMsg = () => {
+    const chatStore = useChatStore(); // 在函数内部初始化 store
     const streamingText = ref('');
     const streaming = ref(false);
-    const follow = ref<string[]>()
-    const msgList = ref<GptMsg[]>([]);
-    const param = ref<QuestionInf>()
+    const follow = ref<string[]>([]);
+    const param = ref<QuestionInf>();
+
     const gpt = new StreamMsg({
         onStart: (prompt: string) => {
-            follow.value = []
+            console.log('开始发送消息');
+            follow.value = [];
             streaming.value = true;
-            msgList.value.push({
+            // 直接操作 store 的 msgList
+            chatStore.msgList.push({
                 role: 'user',
                 content: prompt
             });
         },
         onDone: async () => {
             streaming.value = false;
-            msgList.value.push({
+            chatStore.msgList.push({
                 role: 'assistant',
                 content: streamingText.value
             });
             streamingText.value = '';
-            console.log(param.value)
-            //发送联想请求
-            const { data } = await chatApi.getFollow(param.value)
-            follow.value = data.data.follow
-            console.log(follow.value)
+            console.log(param.value);
+            // 发送联想请求
+            try {
+                const data = await chatApi.getFollow(param.value!);
+                follow.value = data.data.follow;
+                console.log(follow.value);
+            } catch (error) {
+                console.error('获取联想请求失败:', error);
+            }
         },
         onPatch: (text: string) => {
             streamingText.value += text;
@@ -142,13 +146,13 @@ export const useSendMsg = () => {
     });
 
     const stream = (prompt: QuestionInf) => {
-        param.value = prompt
+        param.value = prompt;
         gpt.getChatMsgStream(prompt);
     };
 
     const abortStream = () => {
         streaming.value = false;
-        msgList.value.push({
+        chatStore.msgList.push({
             role: 'assistant',
             content: streamingText.value
         });
@@ -159,7 +163,6 @@ export const useSendMsg = () => {
     return {
         streamingText,
         streaming,
-        msgList,
         stream,
         abortStream,
         follow

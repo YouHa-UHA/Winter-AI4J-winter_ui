@@ -54,8 +54,15 @@ import { getHistoryList, getChatHistory } from "@/api/chatApi";
 import { ElInput } from "element-plus";
 import { Tickets } from "@element-plus/icons-vue"; // 引入图标
 import { ElMessage } from "element-plus";
+import { useUserStore } from "@/stores/user";
+import { useChatStore } from "@/stores/chat";
+import { useRouter } from "vue-router";
+import { firstChatText, type GptMsg } from "@/utils/types";
 
+const router = useRouter();
 const dialogVisible = ref(false);
+const useUser = useUserStore();
+const useChat = useChatStore();
 const scrollRef = ref();
 const pageNum = ref(1);
 const pageSize = ref(10);
@@ -77,12 +84,12 @@ const selectList = async () => {
     return; //已经全部查完就不需要再发请求了
   }
   try {
-    const { data } = await getHistoryList({
+    const data = await getHistoryList({
       pageNum: pageNum.value,
       pageSize: pageSize.value,
     });
-    tableData.value.push(...data.data.data);
-    if (data.data.data.length == 0) {
+    tableData.value.push(...data.data);
+    if (data.data.length == 0) {
       ifSelectAll.value = true;
     }
   } catch (error) {
@@ -101,8 +108,16 @@ const open = () => {
   selectList();
 };
 const selectHistory = async (row: ChatHistoryVo) => {
-  const { data } = await getChatHistory({ chatId: row.chatId });
-  console.log(data);
+  const data = await getChatHistory({ chatId: row.chatId });
+  //切换当前会话
+  const list = [{ role: "assistant", content: firstChatText }] as GptMsg[];
+  list.push(...data);
+  useChat.setMsgList(list);
+  dialogVisible.value = false;
+  useUser.name = row.chatName.substring(0, 5); //当前会话的名字
+  useUser.chatId = row.chatId;
+  useUser.chat1stMsg = useChat.msgList[0]?.content; //当前会话用户的第一个问题
+  router.push({ path: "/", query: { type: String(Math.random()) } });
 };
 const handleScroll = () => {
   if (

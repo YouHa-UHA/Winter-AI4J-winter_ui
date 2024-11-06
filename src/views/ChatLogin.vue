@@ -60,10 +60,12 @@ import * as ChatApi from "@/api/chatApi";
 import { ElMessage } from "element-plus";
 import { CircleCheck } from "@element-plus/icons-vue"; // 引入图标
 import Faulttext from "../components/Faulttext.vue";
+import { useChatStore } from "@/stores/chat";
 
 const ifSendMsg = ref(false);
 const faultRef = ref();
 const useUser = useUserStore();
+const useChat = useChatStore();
 const inputMessage = ref("");
 const passwd = ref("123456");
 const phoneNum = ref("18335083606");
@@ -77,12 +79,11 @@ const router = useRouter();
 const route = useRoute();
 
 const sendLogin = async () => {
-  const { data } = await ChatApi.userLogin({
+  const data = await ChatApi.userLogin({
     phone: phoneNum.value,
     password: passwd.value,
   });
-  console.log(data);
-  if (data.code == 200) {
+  if (data) {
     // 登录成功
     loginSuccess();
     // 获取token信息，存储到pinia
@@ -106,8 +107,8 @@ const loginFail = (index: number) => {
 };
 const sendMessage = async () => {
   //获取对话信息，存储到pinia
-
   if (!useUser.chatId) {
+    console.log("重新获取chatId");
     try {
       const id = await createChatId();
       if (!id || id === "null") {
@@ -116,9 +117,10 @@ const sendMessage = async () => {
       }
       useUser.chatId = id; // 保存获取到的 chatId
       useUser.chat1stMsg = inputMessage.value;
+      useUser.name = inputMessage.value.substring(0, 5);
       router.push({
         path: "/",
-        query: { chatTitle: inputMessage.value.substring(0, 5) },
+        query: { chatTitle: useUser.name },
       });
     } catch (error) {
       ElMessage.error("获取chatId失败，请稍后重试！");
@@ -128,7 +130,7 @@ const sendMessage = async () => {
   }
 };
 const createChatId = async () => {
-  const { data } = await ChatApi.getChatId({
+  const data = await ChatApi.getChatId({
     userID: "111111",
   });
   useUser.chatId = data.data;
@@ -141,11 +143,19 @@ const sendSubmit = async () => {
     await sendLogin();
   }
 };
+const clearChat = () => {
+  useUser.chatId = "";
+  useUser.chat1stMsg = "";
+  useUser.name = "";
+  useChat.clearMsgList();
+};
 const init = async () => {
   console.log("执行login页面init");
+  //清空当前chat信息
+  clearChat();
   //校验是否登录
-  const { data } = await ChatApi.checkLogin();
-  if (data.data == "已登录") {
+  const data = await ChatApi.checkLogin();
+  if (data) {
     loginSuccess();
   } else {
     loginFail(0);
@@ -158,7 +168,7 @@ watch(
   () => route.query.date,
   async () => {
     // route.query.chatTitle = "新对话";
-    console.log("监控到route 变化");
+    console.log("chatLogin页面监控到route 变化");
     await init();
   }
 );

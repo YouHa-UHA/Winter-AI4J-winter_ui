@@ -37,13 +37,13 @@
           :key="index"
         ></Msg>
         <Msg
-          v-if="streaming"
+          v-if="useChat.streaming"
           role="assistant"
-          :content="streamingText"
+          :content="useChat.streamingText"
           :streaming="true"
         ></Msg>
         <div
-          v-for="(item, index) in follow"
+          v-for="(item, index) in useChat.follow"
           :key="index"
           style="margin-left: 40px"
         >
@@ -76,7 +76,7 @@
           />
           <el-button
             type="primary"
-            :icon="streaming ? VideoPause : CircleCheck"
+            :icon="useChat.streaming ? VideoPause : CircleCheck"
             @click="sendMessage"
             class="send-button"
           ></el-button>
@@ -88,6 +88,7 @@
 
 <script setup lang="ts" name="ChatPage">
 import { ref, onMounted, nextTick, watch, onBeforeUnmount } from "vue";
+import { storeToRefs } from "pinia";
 import Msg from "../components/Msg.vue";
 import { useUserStore } from "@/stores/user";
 import * as ChatApi from "@/api/chatApi";
@@ -103,10 +104,14 @@ import {
 import { useRoute } from "vue-router";
 import { useSendMsg } from "@/hooks/useSendMsg";
 import { useScroll } from "@vueuse/core";
+import { useChatStore } from "@/stores/chat";
+import { firstChatText } from "@/utils/types";
 
-const { msgList, streaming, streamingText, stream, abortStream, follow } =
-  useSendMsg();
-const chatTitle = ref("新对话");
+const useChat = useChatStore();
+// 使用 storeToRefs 解构 msgList，使其保持响应性
+const { msgList } = storeToRefs(useChat);
+// const { streaming, streamingText, stream, abortStream, follow } = useSendMsg();
+const chatTitle = ref("未命名会话");
 const route = useRoute();
 const inputMessage = ref("");
 const useUser = useUserStore();
@@ -119,27 +124,33 @@ const scrollToBottom = () => {
     y.value = scrollFromRef.value?.scrollHeight || 0;
   });
 };
-watch([isUserScrolling, streamingText, follow], () => {
-  if (isUserScrolling.value == false && (streamingText.value || follow.value)) {
-    scrollToBottom();
+
+watch(
+  [isUserScrolling, () => useChat.streamingText, () => useChat.follow], // 使用函数的形式来确保它们是 getter
+  () => {
+    if (
+      !isUserScrolling.value &&
+      (useChat.streamingText || useChat.follow.length > 0)
+    ) {
+      scrollToBottom();
+    }
   }
-});
+);
+
 const sendMessage = async () => {
-  // 判断是否正在对话
-  if (streaming.value) {
-    console.log("取消");
-    abortStream();
+  if (useChat.streaming) {
+    useChat.endStream();
     return;
   }
   // 检查输入是否为空
-  const message = inputMessage.value.trim();
+  const message = inputMessage.value?.trim();
   if (message === "") {
     return;
   }
-  if (useUser.chat1stMsg == "") {
-    console.log("为会话title赋值");
-    useUser.chat1stMsg = message.substring(0, 5);
-    chatTitle.value = message.substring(0, 5);
+  if (chatTitle.value == "未命名会话") {
+    useUser.chat1stMsg = message;
+    useUser.name = message.substring(0, 5);
+    chatTitle.value = useUser.name;
   }
 
   inputMessage.value = ""; // 清空输入框
@@ -155,7 +166,12 @@ const sendMessage = async () => {
 
   // 根据已有 chatId 获取对话结果
   try {
-    stream({ chatId: useUser.chatId, appIndex: "ai_coze", question: message });
+    // stream({ chatId: useUser.chatId, appIndex: "ai_coze", question: message });
+    useChat.startStream({
+      chatId: useUser.chatId,
+      appIndex: "ai_coze",
+      question: message,
+    });
   } catch (error) {
     ElMessage.error("发送消息失败，请稍后重试！");
     console.error("发送消息错误:", error);
@@ -163,14 +179,19 @@ const sendMessage = async () => {
 };
 
 const createChatId = async () => {
-  const { data } = await ChatApi.getChatId({
+  const data = await ChatApi.getChatId({
     userID: "111111",
   });
   useUser.chatId = data.data;
   return String(useUser.chatId);
 };
 const handleFollow = (item: string) => {
-  stream({ chatId: useUser.chatId, appIndex: "ai_coze", question: item });
+  useChat.startStream({
+    chatId: useUser.chatId,
+    appIndex: "ai_coze",
+    question: item,
+  });
+  // stream({ chatId: useUser.chatId, appIndex: "ai_coze", question: item });
 };
 const handleScroll = () => {
   const el = scrollFromRef.value;
@@ -184,26 +205,33 @@ const handleScroll = () => {
   }
 };
 const resetValue = () => {
-  msgList.value = [];
-  follow.value = [];
-  streaming.value = false;
+  // msgList.value = [];
+  useChat.follow = [];
+  useChat.streaming = false;
   y.value = 0;
 };
 const init = () => {
+  console.log("执行chatPage init");
   resetValue();
   inputRef.value.focus();
-  chatTitle.value = useUser.chat1stMsg || "未命名会话";
-  //获取问候语，并打印
-  const firstChatText =
-    "你好，欢迎来到WinterAI \uD83C\uDF89\n" +
-    "很高兴与你交流任何话题，欢迎随时来找我！";
-  msgList.value.push({ role: "assistant", content: firstChatText });
+  if (useUser.name != "") {
+    chatTitle.value = useUser.name;
+  } else {
+    chatTitle.value = "未命名会话";
+  }
+  // //获取问候语，并打印
+  if (useChat.msgList.length == 0) {
+    useChat.msgList.push({ role: "assistant", content: firstChatText });
+  }
 };
 onMounted(() => {
+  console.log("执行chatPage页面onMounted");
   //清空上次聊天
   init();
-  inputMessage.value = useUser.chat1stMsg;
-  sendMessage();
+  if (!route.query.type) {
+    inputMessage.value = useUser.chat1stMsg;
+    sendMessage();
+  }
 
   // 监听滚动事件
   scrollFromRef.value.addEventListener("scroll", handleScroll);
@@ -212,11 +240,21 @@ onMounted(() => {
 onBeforeUnmount(() => {
   scrollFromRef.value.removeEventListener("scroll", handleScroll);
 });
+//登录页跳转过来
 watch(
   () => route.query.chatTitle,
   () => {
     // route.query.chatTitle = "新对话";
-    console.log("监控到route 变化");
+    console.log("监控到route chatTitle 变化");
+    init();
+  }
+);
+//会话历史跳转过来
+watch(
+  () => route.query.type,
+  () => {
+    // route.query.chatTitle = "新对话";
+    console.log("监控到route type 变化");
     init();
   }
 );

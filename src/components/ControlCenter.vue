@@ -45,6 +45,7 @@
 <script setup lang="ts" name="ControlCenter">
 import { ref, watch } from "vue";
 import { useUserStore } from "@/stores/user";
+import { useChatStore } from "@/stores/chat";
 import {
   Sunny,
   Moon,
@@ -56,8 +57,8 @@ import ChatHistory from "@/views/ChatHistory.vue";
 import { useRouter } from "vue-router";
 import { checkLogin, logout } from "@/api/chatApi";
 import { ElMessageBox } from "element-plus";
-import { log } from "console";
 
+const useChat = useChatStore();
 const router = useRouter();
 const chatHistroyRef = ref();
 const useUser = useUserStore();
@@ -65,7 +66,7 @@ const ifLogin = ref(false);
 
 const loginOut = async () => {
   // 登录或登出
-  const { data } = await checkLogin();
+  const data = await checkLogin();
   ifLogin.value = data.data == "已登录" ? true : false;
   if (ifLogin.value) {
     ElMessageBox.confirm("确定退出登录吗？", "退出登录", {
@@ -74,7 +75,7 @@ const loginOut = async () => {
     })
       .then(async () => {
         // 退出登录
-        const { data } = await logout();
+        const data = await logout();
         console.log(data);
         router.push({ path: "/login", query: { date: new Date().getTime() } });
       })
@@ -84,6 +85,8 @@ const loginOut = async () => {
   }
 };
 const openChatNew = () => {
+  //停止当前会话
+  useChat.endStream();
   console.log("openChatNew");
   // 开启新会话，会话title置空
   useUser.chat1stMsg = "";

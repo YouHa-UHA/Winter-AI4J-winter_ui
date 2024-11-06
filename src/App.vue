@@ -12,8 +12,10 @@ const expandControl = () => {
 <template>
   <el-row class="container">
     <!-- 控制中心 -->
-    <el-col :span="ifShowControl ? 1 : 0" class="aside">
-      <ControlCenter v-show="ifShowControl" />
+    <el-col :span="ifShowControl ? 1 : 0">
+      <div v-show="ifShowControl" class="aside">
+        <ControlCenter />
+      </div>
     </el-col>
     <el-col :span="1" class="aside">
       <div class="display-expand">

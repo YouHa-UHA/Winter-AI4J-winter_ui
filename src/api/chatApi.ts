@@ -1,27 +1,24 @@
 import request from '@/utils/request';
 
 export const getChatId = async (params: any) => {
-    return await request({
+    return await request.post({
         url: '/chat/create',
-        method: 'post',
         data: params
     })
 }
 
 
 export const userLogin = async (params: any) => {
-    return await request({
+    return await request.post({
         url: '/user/login',
-        method: 'post',
         data: params
     })
 }
 
 export const getFollow = async (params: any) => {
     try {
-        const response = await request({
+        const response = await request.post({
             url: '/chat/follow',
-            method: 'post',
             data: params
         });
         return response;
@@ -32,32 +29,28 @@ export const getFollow = async (params: any) => {
 }
 
 export const getHistoryList = async (param: any) => {
-    return await request({
+    return await request.post({
         url: '/chat/list',
-        method: 'post',
         data: param
     })
 }
 
 export const getChatHistory = async (param: any) => {
-    return await request({
+    return await request.post({
         url: '/chat/query',
-        method: 'post',
         data: param
     })
 }
 
 export const checkLogin = async () => {
-    return await request({
-        url: '/user/isLogin',
-        method: 'post'
+    return await request.post({
+        url: '/user/isLogin'
     })
 }
 
 export const logout = async () => {
-    return await request({
-        url: '/user/logout',
-        method: 'post'
+    return await request.post({
+        url: '/user/logout'
     })
 }
 // 创建一个SSE连接，并返回一个关闭连接的函数，请求方式为GET
