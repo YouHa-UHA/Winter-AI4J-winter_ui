@@ -1,14 +1,15 @@
 <template>
   <div class="custom-center">
     <div>
-      <el-tooltip effect="customized" content="用户" placement="right">
-        <el-button
-          :icon="User"
-          @click="loginOut"
-          circle
-          class="center-btn"
-        ></el-button>
-      </el-tooltip>
+      <el-dropdown placement="right-start">
+        <el-button :icon="User" circle class="center-btn"></el-button>
+        <template #dropdown>
+          <el-dropdown-menu>
+            <el-dropdown-item @click="backHome"> 回到首页 </el-dropdown-item>
+            <el-dropdown-item @click="loginOut"> 退出登录 </el-dropdown-item>
+          </el-dropdown-menu>
+        </template>
+      </el-dropdown>
     </div>
     <div>
       <el-tooltip effect="customized" content="开启新会话" placement="right">
@@ -56,18 +57,23 @@ import {
 import ChatHistory from "@/views/ChatHistory.vue";
 import { useRouter } from "vue-router";
 import { checkLogin, logout } from "@/api/chatApi";
-import { ElMessageBox } from "element-plus";
+import { ElMessageBox, ElMessage } from "element-plus";
 
 const useChat = useChatStore();
 const router = useRouter();
 const chatHistroyRef = ref();
 const useUser = useUserStore();
 const ifLogin = ref(false);
-
+const backHome = () => {
+  router.push("/login");
+};
+const checkLog = async () => {
+  const data = await checkLogin();
+  ifLogin.value = data == "已登录" ? true : false;
+};
 const loginOut = async () => {
   // 登录或登出
-  const data = await checkLogin();
-  ifLogin.value = data.data == "已登录" ? true : false;
+  await checkLog();
   if (ifLogin.value) {
     ElMessageBox.confirm("确定退出登录吗？", "退出登录", {
       confirmButtonText: "确定",
@@ -81,7 +87,7 @@ const loginOut = async () => {
       })
       .catch(() => {});
   } else {
-    router.push("/login");
+    ElMessage.warning("请先登录");
   }
 };
 const openChatNew = () => {

@@ -14,7 +14,7 @@ service.interceptors.response.use(
         // 未设置状态码则默认成功状态
         const code = res.data.code || 200;
         // 获取错误信息
-        const msg = res.data.message || ""
+        const msg = res.data.msg || ""
         // 二进制数据则直接返回
         if (res.request.responseType === 'blob' || res.request.responseType === 'arraybuffer') {
             console.log("二进制数据直接返回")
@@ -27,7 +27,7 @@ service.interceptors.response.use(
         } else if (code === 400) {
             ElMessage.error(res.data.data)
             return Promise.reject(msg)
-        } else if (code !== 200) {
+        } else if (code !== 200 && msg != "未登录") {
             ElNotification.error({ title: msg })
             return Promise.reject('error')
         } else {
