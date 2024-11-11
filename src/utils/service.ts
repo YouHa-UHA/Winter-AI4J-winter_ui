@@ -1,5 +1,5 @@
 import axios, { AxiosError, type AxiosResponse } from 'axios';
-import { ElMessage } from 'element-plus';
+import { ElMessage, ElNotification } from 'element-plus';
 import router from '@/router';
 // 创建axios实例
 const service = axios.create({
@@ -14,7 +14,7 @@ service.interceptors.response.use(
         // 未设置状态码则默认成功状态
         const code = res.data.code || 200;
         // 获取错误信息
-        const msg = res.data.msg || ""
+        const msg = res.data.message || ""
         // 二进制数据则直接返回
         if (res.request.responseType === 'blob' || res.request.responseType === 'arraybuffer') {
             console.log("二进制数据直接返回")
@@ -24,8 +24,13 @@ service.interceptors.response.use(
             console.log('跳转到登录页')
             router.push('/login'); // 跳转到登录页
             return Promise.reject("用户未授权，需要登录"); // 阻止后续代码执行
-        }
-        else {
+        } else if (code === 400) {
+            ElMessage.error(res.data.data)
+            return Promise.reject(msg)
+        } else if (code !== 200) {
+            ElNotification.error({ title: msg })
+            return Promise.reject('error')
+        } else {
             return res.data
         }
     },

@@ -46,7 +46,7 @@ export const useChatStore = defineStore('chat', {
                     // 发送联想请求
                     try {
                         const data = await chatApi.getFollow(param);
-                        this.follow = data.data.follow; // 更新联想结果
+                        this.follow = data.follow; // 更新联想结果
                         console.log(this.follow);
                     } catch (error) {
                         console.error('获取联想请求失败:', error);

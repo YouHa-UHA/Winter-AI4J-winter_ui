@@ -87,12 +87,14 @@ const loginOut = async () => {
 const openChatNew = () => {
   //停止当前会话
   useChat.endStream();
+  useChat.clearMsgList();
   console.log("openChatNew");
   // 开启新会话，会话title置空
   useUser.chat1stMsg = "";
-  router.replace({
+  useUser.name = "";
+  router.push({
     path: "/",
-    query: { chatTitle: String(Math.random()) },
+    query: { time: Date.now() },
   }); // 替换路由并清除参数
 };
 const openChatHistory = () => {

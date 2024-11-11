@@ -101,18 +101,18 @@ import {
   VideoPause,
   CircleCheck,
 } from "@element-plus/icons-vue"; // 引入图标
-import { useRoute } from "vue-router";
+import { useRouter, useRoute, onBeforeRouteUpdate } from "vue-router";
 import { useSendMsg } from "@/hooks/useSendMsg";
 import { useScroll } from "@vueuse/core";
 import { useChatStore } from "@/stores/chat";
 import { firstChatText } from "@/utils/types";
 
+const router = useRouter();
+const route = useRoute();
 const useChat = useChatStore();
 // 使用 storeToRefs 解构 msgList，使其保持响应性
 const { msgList } = storeToRefs(useChat);
-// const { streaming, streamingText, stream, abortStream, follow } = useSendMsg();
 const chatTitle = ref("未命名会话");
-const route = useRoute();
 const inputMessage = ref("");
 const useUser = useUserStore();
 const scrollFromRef = ref();
@@ -166,7 +166,6 @@ const sendMessage = async () => {
 
   // 根据已有 chatId 获取对话结果
   try {
-    // stream({ chatId: useUser.chatId, appIndex: "ai_coze", question: message });
     useChat.startStream({
       chatId: useUser.chatId,
       appIndex: "ai_coze",
@@ -191,7 +190,6 @@ const handleFollow = (item: string) => {
     appIndex: "ai_coze",
     question: item,
   });
-  // stream({ chatId: useUser.chatId, appIndex: "ai_coze", question: item });
 };
 const handleScroll = () => {
   const el = scrollFromRef.value;
@@ -205,7 +203,6 @@ const handleScroll = () => {
   }
 };
 const resetValue = () => {
-  // msgList.value = [];
   useChat.follow = [];
   useChat.streaming = false;
   y.value = 0;
@@ -213,7 +210,6 @@ const resetValue = () => {
 const init = () => {
   console.log("执行chatPage init");
   resetValue();
-  inputRef.value.focus();
   if (useUser.name != "") {
     chatTitle.value = useUser.name;
   } else {
@@ -228,36 +224,39 @@ onMounted(() => {
   console.log("执行chatPage页面onMounted");
   //清空上次聊天
   init();
-  if (!route.query.type) {
+  if (route.query.chatTitle) {
+    // 从登录页跳转
     inputMessage.value = useUser.chat1stMsg;
     sendMessage();
   }
-
+  inputRef.value.focus();
   // 监听滚动事件
   scrollFromRef.value.addEventListener("scroll", handleScroll);
 });
+onBeforeRouteUpdate((to, from, next) => {
+  if (to.path === from.path) {
+    console.log("触发内部导航");
+    init();
+    next();
+  }
+});
+// router.beforeEach((to, from, next) => {
+//   console.log(to.path);
+//   if (to.path == "/") {
+//     console.log("触发导航守卫");
+//     init();
+//     if (route.query.chatTitle) {
+//       // 从登录页跳转
+//       inputMessage.value = useUser.chat1stMsg;
+//       sendMessage();
+//     }
+//   }
+//   next();
+// });
 
 onBeforeUnmount(() => {
   scrollFromRef.value.removeEventListener("scroll", handleScroll);
 });
-//登录页跳转过来
-watch(
-  () => route.query.chatTitle,
-  () => {
-    // route.query.chatTitle = "新对话";
-    console.log("监控到route chatTitle 变化");
-    init();
-  }
-);
-//会话历史跳转过来
-watch(
-  () => route.query.type,
-  () => {
-    // route.query.chatTitle = "新对话";
-    console.log("监控到route type 变化");
-    init();
-  }
-);
 </script>
 
 <style scoped>
