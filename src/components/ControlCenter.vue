@@ -99,7 +99,7 @@ const openChatNew = () => {
   useUser.chat1stMsg = "";
   useUser.name = "";
   router.push({
-    path: "/",
+    path: "/chat",
     query: { time: Date.now() },
   }); // 替换路由并清除参数
 };

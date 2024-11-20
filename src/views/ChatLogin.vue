@@ -2,7 +2,7 @@
   <div class="container">
     <div style="margin: 30vh auto">
       <div class="message title-message">
-        <Faulttext ref="faultRef" :content="titleContent" :ifFault="true" />
+        <Faulttext ref="faultRef" :content="titleContent" :ifFault="ifFail" />
       </div>
 
       <el-card class="input-card">
@@ -64,6 +64,7 @@ import { useChatStore } from "@/stores/chat";
 
 const ifSendMsg = ref(false);
 const faultRef = ref();
+const ifFail = ref(false);
 const useUser = useUserStore();
 const useChat = useChatStore();
 const inputMessage = ref("");
@@ -98,11 +99,13 @@ const loginSuccess = () => {
   ifSendMsg.value = true;
   titleContent.value = titleList[2];
   faultRef.value.typeMessage(titleContent.value);
+  ifFail.value = false;
 };
 const loginFail = (index: number) => {
   ifSendMsg.value = false;
   titleContent.value = titleList[index];
   faultRef.value.typeMessage(titleContent.value);
+  ifFail.value = true;
   faultRef.value.triggerFault(titleContent.value);
 };
 const sendMessage = async () => {
@@ -119,7 +122,7 @@ const sendMessage = async () => {
       useUser.chat1stMsg = inputMessage.value;
       useUser.name = inputMessage.value.substring(0, 5);
       router.push({
-        path: "/",
+        path: "/chat",
         query: { chatTitle: useUser.name },
       });
     } catch (error) {

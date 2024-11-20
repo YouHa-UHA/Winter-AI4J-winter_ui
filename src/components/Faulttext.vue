@@ -80,6 +80,7 @@ const triggerFault = () => {
 };
 
 onMounted(() => {
+  console.log("接收到iffault", props.ifFault);
   init();
   typeMessage(props.content); // 假设 typeMessage 是一个返回 Promise 的异步函数
   if (props.ifFault) {

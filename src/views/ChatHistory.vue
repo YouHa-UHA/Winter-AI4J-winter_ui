@@ -117,7 +117,7 @@ const selectHistory = async (row: ChatHistoryVo) => {
   useUser.name = row.chatName.substring(0, 5); //当前会话的名字
   useUser.chatId = row.chatId;
   useUser.chat1stMsg = useChat.msgList[0]?.content; //当前会话用户的第一个问题
-  router.push({ path: "/", query: { his: Date.now() } });
+  router.push({ path: "/chat", query: { his: Date.now() } });
 };
 const handleScroll = () => {
   if (
